@@ -64,6 +64,7 @@ For the "Raw" image, either attach ephemeral storage or ensure that the image is
 On [CERN OpenStack](https://openstack.cern.ch), you need to upload the CernVM image to your project before you can create CernVM 3 instances.
 To do so, download the CernVM 3 "Raw" image and download the openrc.sh file from the CERN OpenStack website.
 Then run
+
     source openrc.sh
     export OS_CACERT=/etc/pki/tls/cert.pem
     glance image-create --name "CernVM 3.1.0" --is-public False --disk-format raw --property os=linux --property hypervisor_type=kvm --container-format bare --file ucernvm-prod.1.16-3.cernvm.x86_64.hdd
@@ -101,6 +102,7 @@ This way, you can move data between virtual machines and the data remains intact
 
 CernVM has AFS installed but disabled by default.
 In order to start AFS, you'd need to do
+
     sudo mkdir /afs
     sudo /sbin/chkconfig afs on
     sudo /sbin/service afs start
