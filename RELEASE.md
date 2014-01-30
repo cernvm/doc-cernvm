@@ -189,8 +189,18 @@ This does not yet work with cloud-init though; only with amiconfig and the µCer
 
 ## Updates
 
+When booted, CernVM will load the latest available CernVM 3 version and pin itself on this version.
+This ensures that your environment stays the same unless you explicitly take action.
+Both the µCernVM bootloader and the CernVM-FS provided operating system can be updated using the `cernvm-update` script.
+The support list will be notified when updates are ready and will post specific instructions for each update.
 
-### Version Numbers
+Note that due to the different nature of CernVM 2 and CernVM 3 there is no upgrade path from CernVM 2 to CernVM 3.
+
+The CernVM 3 strong version number consists of 4 parts: 3.X.Y.Z.
+Major version 3 indicates an Scientific Linux 6 based CernVM.
+Minor version X will be changed when there is a significant change in the set of supported features.
+"Y" is the bugfix version.
+"Z" is the security hotfix version; changes in "Z" don't change the set of packages but provide security fixes for selected packages.
 
 
 ## Next steps
@@ -233,6 +243,42 @@ In order to enable it, run `source /opt/rh/devtoolset-2/enable`.
 Apart from gcc 4.8, this also provides matching binutils and a matching gdb and Valgrind.
 
 
+## Makeflow
+
+CernVM 3 supports the [Makeflow](http://www.cse.nd.edu/~ccl/software/makeflow/) master-worker scheduler.
+Makeflow provides an easy way to define and run distributed computing workflows.
+The contextualization is similar to condor.
+There are three parameters:
+
+    catalog_server=hostname or ip address
+    workqueue_project=project name, defaults to "cernvm" (similar to the shared secret in condor)
+    workqueue_user=user name, defaults to workqueue (the user is created on the fly if necessary)
+
+In order to contextualize the master node, include an empty workqueue section, like
+
+    [amiconfig]
+    plugins=workqueue
+    [workqueue]
+
+In order to start the work queue workers, specify the location of the catalog server, like
+
+    [amiconfig]
+    plugins=workqueue
+
+    [workqueue]
+    catalog_server=128.142.142.107
+    workqueue_project=foobar
+
+The plugin will start one worker for every available CPU.
+
+Once the ensemble is up and running, makeflow can make use of the workqueue resources like so
+
+    makeflow -T wq -a -N foobar -d all -C 128.142.142.107:9097 makeflow.example
+
+
+Note that your cloud infrastructure needs to provide access to UDP and TCP ports 9097 on your virtual machines.
+
+
 ## Single Sign On
 
 You can get a Kerberos token with `kinit`.
@@ -241,10 +287,16 @@ With the token, you can login to lxplus and work with subversion repositories wi
 
 ## Known Issues
 
-sudo system-config-keyboard Keyboard
-Preload cache
-Copy & Paste / DnD / Unity on VMware Fusion
+\* If the keyboard layout changes, run `sudo system-config-keyboard` to bring it back to match your keyboard
+\* Copy & Paste, Drag and Drop, and Unity features do not work on VMware Fusion
+
 
 ## Debugging
 
-sudo /sbin/service network restart
+In case you cannot login (any more) to your virtual machine, even though the machine was properly contextualized, you can boot CernVM in "debug mode".
+In the early boot menu, select the "Debug" entry.
+This enables kernel debug messages and pauses the boot process just before the µCernVM bootloader hands over to the operating system.
+Here, type `reset_root_password` followed by `ENTER` and `Ctrl+D`.
+Once booted, you can then login as root with password "password".
+
+If you experience hangs of the virtual machine after changing location, try to reset the network by `sudo /sbin/service network restart`.
