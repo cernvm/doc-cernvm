@@ -98,12 +98,14 @@ The [CernVM Online portal](https://cernvm-online.cern.ch) lets you define and st
 Once defined, the VM profiles can quickly be applied to any newly booted CernVM instance using a pairing mechanism on the login prompt.
 Please visit the following pages for more information about how to [create new context templates](http://cernvm.cern.ch/portal/online/documentation/create-new-context) and [pair an instance](http://cernvm.cern.ch/portal/online/documentation/pairing-the-instance) with given template.
 
+
 ### Cloud Contextualization
 
 Like CernVM 2, CernVM 3 supports the [amiconfig and CD-ROM contextualization methods](http://cernvm.cern.ch/portal/contextualisation).
 In addition, CernVM 3 supports [cloud-init contextualization](https://cloudinit.readthedocs.org/en/latest/index.html).
 Some of the contextualization tasks done by amiconfig can be done by cloud-init as well due to the native cloud-init modules for [cvmfs, ganglia, and condor](https://twiki.cern.ch/twiki/bin/view/LCG/CloudInit).
 These modules are part of CernVM 3.
+
 
 #### Mixing cloud-init and amiconfig user data
 
@@ -119,7 +121,7 @@ We have an amiconfig context `amiconfig-user-data` that starts a catalog server 
     plugins = workqueue
     [workqueue]
 
-We also have a cloud-init context `cloud-init-context` that creates amn interactive user "cloudy" with the password "password"
+We also have a cloud-init context `cloud-init-user-data` that creates amn interactive user "cloudy" with the password "password"
 
     users:
       - name: cloudy
@@ -152,20 +154,37 @@ We invoke it like
 
     python helper.py cloud-init-user-data:cloud-config amiconfig-user-data:amiconfig > mixed-user-data
 
+
 #### Contextualizing the µCernVM Bootloader
+
+The bootloader can process EC2, Openstack, and vSphere user data.
+Within the user data everything is ignored expect a block of the form
+
+    [ucernvm-begin]
+    key1=value1
+    key2=value2
+    ...
+    [ucernvm-end]
+
+In the same way as mixing amiconfig and cloud-init user data, this block can also be a MIME part in a mixed context.
+The following key-value pairs are recognized:
+
+| Key             | Value                             | Comments                                         |
+|-----------------|-----------------------------------|--------------------------------------------------|
+|resize_rootfs    | on/off                            | use all of the harddisk instead of the first 20G |
+|cvmfs_http_proxy | HTTP proxy in CernVM-FS notation  |                                                  |
+|cvmfs_server     | List of Stratum 1 servers         | E.g.: cvmfs-stratum-one.cern.ch,another.com      |
+|cvmfs_branch     | The repository name               |                                                  |
+|cvmfs_tag        | The snapshot name                 | For long-term data preservation                  |
+
 
 
 #### Extra Contextualization
 
-In addition, we started to work on "extra user data" [4], which might be
-a last resort where the normal user-data is occupied by the
-infrastructure.  For instance, glideinWMS seems to exclusively specify
-user data, making it necessary to modify the image for additional
-contextualization.  Extra user data are placed in the image under
-/cernvm/extra-user-data and they are internally appended to the normal
-user data.  This does not yet work with cloud-init though; only with
-amiconfig and the µCernVM bootloader.  Extra user data might help in the
-Nimbus case as well but that needs to be seen.
+In addition to the normal user data, we have experimental support for "[extra user data](https://github.com/cernvm/cernvm-micro#extra-user-data)", which might be a last resort where the normal user data is occupied by the infrastructure.
+For instance, glideinWMS seems to exclusively specify user data, making it necessary to modify the image for additional contextualization.
+Extra user data are injected in the image under /cernvm/extra-user-data and they are internally appended to the normal user data.
+This does not yet work with cloud-init though; only with amiconfig and the µCernVM bootloader.
 
 
 ## Updates
