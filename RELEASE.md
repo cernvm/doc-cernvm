@@ -98,6 +98,8 @@ The [CernVM Online portal](https://cernvm-online.cern.ch) lets you define and st
 Once defined, the VM profiles can quickly be applied to any newly booted CernVM instance using a pairing mechanism on the login prompt.
 Please visit the following pages for more information about how to [create new context templates](http://cernvm.cern.ch/portal/online/documentation/create-new-context) and [pair an instance](http://cernvm.cern.ch/portal/online/documentation/pairing-the-instance) with given template.
 
+Also check out the [CernVM Online Marketplace](https://cernvm-online.cern.ch/market/list).
+We will keep adding ready-to-use contexts for the most common use cases.
 
 ### Cloud Contextualization
 
