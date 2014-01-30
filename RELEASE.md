@@ -287,8 +287,8 @@ With the token, you can login to lxplus and work with subversion repositories wi
 
 ## Known Issues
 
-\* If the keyboard layout changes, run `sudo system-config-keyboard` to bring it back to match your keyboard
-\* Copy & Paste, Drag and Drop, and Unity features do not work on VMware Fusion
++ If the keyboard layout changes, run `sudo system-config-keyboard` to bring it back to match your keyboard
++ Copy & Paste, Drag and Drop, and Unity features do not work on VMware Fusion
 
 
 ## Debugging
