@@ -1,7 +1,7 @@
 #!/bin/sh
 
 URL=http://cernvm.cern.ch/releases
-VERSION=3.1.0
+VERSION="3.1.1"
 UVERSION=1.16-3
 ARCH=x86_64
 ARCHTYPE=64
