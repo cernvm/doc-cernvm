@@ -105,6 +105,9 @@ We will keep adding ready-to-use contexts for the most common use cases.
 
 Like CernVM 2, CernVM 3 supports the [amiconfig and CD-ROM contextualization methods](http://cernvm.cern.ch/portal/contextualisation).
 In addition, CernVM 3 supports [cloud-init contextualization](https://cloudinit.readthedocs.org/en/latest/index.html).
+
+#### Condor, Ganglia, and CernVM-FS
+
 Some of the contextualization tasks done by amiconfig can be done by cloud-init as well due to the native cloud-init modules for [cvmfs, ganglia, and condor](https://twiki.cern.ch/twiki/bin/view/LCG/CloudInit).
 These modules are part of CernVM 3.
 
