@@ -123,7 +123,7 @@ We have an amiconfig context `amiconfig-user-data` that starts a catalog server 
     plugins = workqueue
     [workqueue]
 
-We also have a cloud-init context `cloud-init-user-data` that creates amn interactive user "cloudy" with the password "password"
+We also have a cloud-init context `cloud-init-user-data` that creates an interactive user "cloudy" with the password "password"
 
     users:
       - name: cloudy
@@ -159,7 +159,7 @@ We invoke it like
 
 #### Contextualizing the µCernVM Bootloader
 
-The bootloader can process EC2, Openstack, and vSphere user data.
+The µCernVM bootloader can process EC2, Openstack, and vSphere user data.
 Within the user data everything is ignored expect a block of the form
 
     [ucernvm-begin]
@@ -176,9 +176,7 @@ The following key-value pairs are recognized:
 |resize_rootfs    | on/off                            | use all of the harddisk instead of the first 20G |
 |cvmfs_http_proxy | HTTP proxy in CernVM-FS notation  |                                                  |
 |cvmfs_server     | List of Stratum 1 servers         | E.g.: cvmfs-stratum-one.cern.ch,another.com      |
-|cvmfs_branch     | The repository name               |                                                  |
 |cvmfs_tag        | The snapshot name                 | For long-term data preservation                  |
-
 
 
 #### Extra Contextualization
@@ -208,7 +206,7 @@ Minor version X will be changed when there is a significant change in the set of
 ## Next steps
 
 Once booted and contextualized, you can use ssh to connect to your virtual machine.
-SSHFS and shared folders provide you easy means to exchange files between the host and CernVM.
+[SSHFS](http://fuse.sourceforge.net/sshfs.html) and shared folders provide you an easy means to exchange files between the host and CernVM.
 
 For storing data and analysis results, we recommend not to use the root partition.
 Instead, attach a second hard drive to the virtual machine or use shared folders.
@@ -233,7 +231,7 @@ Instead, shared folders can provide an easy way to map directory trees from the 
 ## ROOT
 
 In order to start a stand-alone ROOT, click on the tree logo in the middle of the application launcher bar.
-In non-graphical mode, use `module load ROOT` to set the ROOT environemnt.
+In non-graphical mode, use `module load ROOT` to set up the ROOT environemnt.
 Afterwards you can just use `root`.
 If you want to clean the environment from that particular version of ROOT, use `module unload ROOT`.
 
@@ -247,7 +245,7 @@ Apart from gcc 4.8, this also provides matching binutils and a matching gdb and 
 
 ## Makeflow
 
-CernVM 3 supports the [Makeflow](http://www.cse.nd.edu/~ccl/software/makeflow/) master-worker scheduler.
+CernVM 3 supports the [Makeflow](http://www.cse.nd.edu/~ccl/software/makeflow/) workflow engine.
 Makeflow provides an easy way to define and run distributed computing workflows.
 The contextualization is similar to condor.
 There are three parameters:
