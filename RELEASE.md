@@ -67,8 +67,8 @@ Then run
 
     source openrc.sh
     export OS_CACERT=/etc/pki/tls/cert.pem
-    glance image-create --name "CernVM 3.1.0" --is-public False --disk-format raw --property os=linux --property hypervisor_type=kvm --container-format bare --file ucernvm-prod.1.16-3.cernvm.x86_64.hdd
-    nova boot "Virtual Machine Name" --image "CernVM 3.1.0" --flavor m1.small --key-name "name of the key pair"
+    glance image-create --name "CernVM 3" --is-public False --disk-format raw --property os=linux --property hypervisor_type=kvm --container-format bare --file ucernvm-prod.1.16-3.cernvm.x86_64.hdd
+    nova boot "Virtual Machine Name" --image "CernVM 3" --flavor m1.small --key-name "name of the key pair" --user-data $user-data-file
 
 If you don't need the image name registered with DNS, add `--meta cern-services=false` to the "nova boot" command in order to speed up instantiation.
 Use at least m1.small as a flavor, the m1.tiny flavor is too small.
@@ -105,12 +105,57 @@ In addition, CernVM 3 supports [cloud-init contextualization](https://cloudinit.
 Some of the contextualization tasks done by amiconfig can be done by cloud-init as well due to the native cloud-init modules for [cvmfs, ganglia, and condor](https://twiki.cern.ch/twiki/bin/view/LCG/CloudInit).
 These modules are part of CernVM 3.
 
+#### Mixing cloud-init and amiconfig user data
+
 The user-data for cloud-init and for amiconfig can be mixed.
 The cloud-init syntax supports user data divided into multiple MIME parts.
 One of these MIME parts can contain amiconfig formatted user-data.
 Both contextualization agents (cloud-init and amiconfig) parse the user data and each one interprets what it understands.
 
+The following example illustrates how to mix amiconfig and cloud-init.
+We have an amiconfig context `amiconfig-user-data` that starts a catalog server for use with Makeflow:
 
+    [amiconfig]
+    plugins = workqueue
+    [workqueue]
+
+We also have a cloud-init context `cloud-init-context` that creates amn interactive user "cloudy" with the password "password"
+
+    users:
+      - name: cloudy
+        lock-passwd: false
+        passwd: $6$XYWYJCb.$OYPPN5AohCixcG3IqcmXK7.yJ/wr.TwEu23gaVqZZpfdgtFo8X/Z3u0NbBkXa4tuwu3OhCxBD/XtcSUbcvXBn1
+
+The following helper script creates our combined user data with multiple MIME parts:
+
+    #!/usr/bin/python
+    import sys
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+
+    if len(sys.argv) == 1:
+        print("%s input-file:type ..." % (sys.argv[0]))
+        sys.exit(1)
+
+    combined_message = MIMEMultipart()
+        for i in sys.argv[1:]:
+            (filename, format_type) = i.split(":", 1)
+        with open(filename) as fh:
+            contents = fh.read()
+        sub_message = MIMEText(contents, format_type, sys.getdefaultencoding())
+        sub_message.add_header('Content-Disposition', 'attachment; filename="%s"' % (filename))
+        combined_message.attach(sub_message)
+
+    print(combined_message)
+
+We invoke it like
+
+    python helper.py cloud-init-user-data:cloud-config amiconfig-user-data:amiconfig > mixed-user-data
+
+#### Contextualizing the µCernVM Bootloader
+
+
+#### Extra Contextualization
 
 In addition, we started to work on "extra user data" [4], which might be
 a last resort where the normal user-data is occupied by the
