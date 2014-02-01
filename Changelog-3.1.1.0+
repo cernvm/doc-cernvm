@@ -1,0 +1,7 @@
+* Fix guest resolution resizing for VirtualBox (xorg.conf)
+* Update open-vm-tools to 9.4.0
+* Fix Copy&Paste on VMware (compile with gtkmm support)
+* Add cloud-scheduler package (including python-suds, python-lxml)
+* Add expect package
+* Add python-pip package
+* Upgrade base to SL 6.5

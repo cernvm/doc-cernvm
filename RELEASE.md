@@ -3,7 +3,7 @@ CernVM 3 First Public Release
 
 ## Overview
 
-CernVM 3 is the out. CernVM 3 is based on Scientific Linux 6 combined with a custom, virtualization-friendly Linux kernel. It is also fully RPM based; you can use yum and rpm to install additional packages.
+CernVM 3 is out. CernVM 3 is based on Scientific Linux 6 combined with a custom, virtualization-friendly Linux kernel. It is also fully RPM based; you can use yum and rpm to install additional packages.
 
 CernVM 3 is based on the [µCernVM bootloader](http://arxiv.org/abs/1311.2426).  Its outstanding feature is that it does not require a hard disk image to be distributed (hence "micro").  Instead it is distributed as a read-only image of ~10MB containing a Linux kernel and the CernVM-FS client.  The rest of the operating system is downloaded and cached on demand by CernVM-FS.  The virtual machine still requires a hard disk as a persistent cache, but this hard disk is initially empty and can be created instantaneously, instead of being pre-created and distributed.
 
@@ -44,8 +44,11 @@ Then run
 
     source openrc.sh
     export OS_CACERT=/etc/pki/tls/cert.pem
-    glance image-create --name "CernVM 3" --is-public False --disk-format raw --property os=linux --property hypervisor_type=kvm --container-format bare --file ucernvm-prod.1.16-3.cernvm.x86_64.hdd
-    nova boot "Virtual Machine Name" --image "CernVM 3" --flavor m1.small --key-name "name of the key pair" --user-data $user-data-file
+    glance image-create --name "CernVM 3" --is-public False --disk-format raw --property os=linux \
+      --property hypervisor_type=kvm --container-format bare \
+      --file ucernvm-prod.1.16-3.cernvm.x86_64.hdd
+    nova boot "Virtual Machine Name" --image "CernVM 3" --flavor m1.small --key-name "name of the key pair" \
+      --user-data $user-data-file
 
 If you don't need the image name registered with DNS, add `--meta cern-services=false` to the "nova boot" command in order to speed up instantiation.  Use at least m1.small as a flavor, the m1.tiny flavor is too small.
 
