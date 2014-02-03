@@ -5,3 +5,8 @@
 * Add expect package
 * Add python-pip package
 * Upgrade base to SL 6.5
+* Add tigervnc-server-module, x11vnc (includes libvncserver)
+* Add system-config-date
+* Add nimbus cloud client
+* Add gsutil
+* Bump gcutil from 1.10.0 to 1.11.0
