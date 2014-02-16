@@ -1,3 +1,4 @@
+* Increase timeout to 10s when fetching context from cernvm-online
 * Fix guest resolution resizing for VirtualBox (xorg.conf)
 * Update open-vm-tools to 9.4.0
 * Fix Copy&Paste on VMware (compile with gtkmm support)
@@ -8,5 +9,8 @@
 * Add tigervnc-server-module, x11vnc (includes libvncserver)
 * Add system-config-date
 * Add nimbus cloud client
-* Add gsutil
-* Bump gcutil from 1.10.0 to 1.11.0
+* Update gcutil to google cloud sdk (includes gsutil, gcloud)
+* Add iperf3
+* Add monit
+* Add rabbitmq
+* Fix xrdp
