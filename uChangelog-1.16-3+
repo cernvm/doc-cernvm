@@ -1,3 +1,5 @@
+* Add DESY Stratum 1
+* Kernel 3.10.30
 * Update open-vm-tools kernel modules to 9.4.0
 * Google Compute Engine
   * MTU 1460, otherwise network hangs
