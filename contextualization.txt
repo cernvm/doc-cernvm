@@ -1,0 +1,326 @@
+<p><strong>Note:</strong> contextualization information for CernVM 2 can be found <a href="http://cernvm.cern.ch/portal/contextualisation2">here</a></p>
+<h1>Cloud Contextualization</h1>
+<h2>Introduction</h2>
+<p>A <emph>context</emph> is a small (up to 16kB), usually human-readable snippet that is used to apply a role to a virtual machine. A context allows to have a singe virtual machine image that can back many different virtual machine instances in so far as the instance can adapt to various cloud infrastructures and use cases depending on the context. In the process of <emph>contextualization</emph>, the cloud infrastructure makes the context available to the virtual machine and the virtual machine interprets the context. On contextualization, the virtual machine can, for instance, start certain services, create users, or set configuration parameters.
+</p>
+
+<p>For contextualization, we distinguish between so called <emph>meta-data</emph> and <emph>user-data</emph>.  The meta-data is provided by the cloud infrastructure and is not modifiable by the user.  For example, meta-data includes the instance ID as issued by the cloud infrastructure and the virtual machine's assigned network parameters.  The user-data is provided by the user on creation of the virtual machine.</p>
+
+<p>Meta-data and user-data are typically accessible through an HTTP server on a private IP address such as 169.254.169.254.  The cloud infrastructure shields user-data from different VMs so that it can be used to deliver credentials to a virtual machine.</p>
+
+<p>In CernVM, there are three entities that interpret the user-data.  Each of them typically read "what it understands" while ignoring the rest.  The µCernVM bootloader interprets a very limited set of key-value pairs that are used to initialize the virtual hardware and to select the CernVM-FS operating system repository. In a later boot phase, amiconfig and cloud-init are used to contextualize the virtual machine. The amiconfig system was initially provided by rPath but it is now maintained by us. It provides very simple, key-value based contextualization that is processed by a number of amiconfig plugins. The cloud-init system is maintained by Redhat and Ubuntu and provides a more sophisticated but also more complex contextualization mechanism. Note that you can not yet use cloud-init to contextualize on OpenNebula and Google Compute Engine. The amiconfig contextualization works universally.</p>
+
+<h2>Contextualization of the µCernVM Boot Loader</h2>
+The µCernVM bootloader can process EC2, Openstack, and vSphere user data.  Within the user data everything is ignored expect a block of the form
+<code><pre>
+[ucernvm-begin]
+key1=value1
+key2=value2
+...
+[ucernvm-end]
+</pre></code>
+The following key-value pairs are recognized:
+<dl>
+  <dt>resize_rootfs</dt>
+  <dd>Can be <strong>on</strong> or <strong>off</strong>. When turned on, use all of the hard disk as root partition instead of the first 20G</dd>
+  <dt>cvmfs_http_proxy</dt>
+  <dd>HTTP proxy in CernVM-FS notation</dd>
+  <dt>cvmfs_server</dt>
+  <dd>List of Stratum 1 servers, e.g. cvmfs-stratum-one.cern.ch,another.com</dd>
+  <dt>cvmfs_tag</dt>
+  <dd>The snapshot name, useful for the long-term data preservation</dd>
+</dl>
+
+<h2>Contextualization with amiconfig</h2>
+<p>The amiconfig contextualization executes on boot time, parses user data and looks for python style configuration blocks. If a match is found the corresponding plugin will process the options and execute configuration steps if needed. By default, enabled rootsshkeys is the only enabled plugins (others can be enabled in the configuration file).</p>
+    <p>Default plugins:</p>
+    <blockquote>
+    <pre>
+rootshkeys            - allow injection of root ssh keys
+</pre>
+    </blockquote>
+    <p>Available plugins:</p>
+    <blockquote>
+    <pre>
+amildap               - setup LDAP connection
+cernvm                - configure various CernVM options
+condor                - setup Condor batch system
+disablesshpasswdauth  - if activated, it will disable ssh authentication with password
+dnsupdate             - update DNS server with current host IO
+ganglia               - configure gmond (ganglia monitoring)
+hostname              - set hostname
+noip                  - register IP address with NOIP dynamic DNS service      
+nss                   - /etc/nsswithch.conf configuration
+puppet                - set parameters for puppet configuration management
+squid                 - configure squid for use with CernVM-FS
+</pre>
+    </blockquote>
+    <p>Common amiconfig options:</p>
+    <blockquote>
+    <pre>
+[amiconfig]
+plugins = &lt;list of plugins to enable&gt;
+disabed_plugins = &lt;list of plugins to disable&gt;
+</pre>
+    </blockquote>
+    <p>Specific plugin options:</p>
+    <blockquote>
+    <pre>
+[cernvm]
+# list of ',' seperated organisations/experiments (lowercase)
+organisations = &lt;list&gt;
+# list of ',' seperated repositories (lowercase)
+repositories = &lt;list&gt;
+# list of ',' separated user accounts to create &lt;user:group:[password]&gt;
+users = &lt;list&gt;
+# CernVM user shell &lt;/bin/bash|/bin/tcsh&gt;
+shell = &lt;shell&gt;
+# CVMFS HTTP proxy
+proxy = http://&lt;host&gt;:&lt;port&gt;;DIRECT
+----------------------------------------------------------
+# url from where to retrieve initial CernVM configuration
+config_url = &lt;url&gt;
+# list of ',' separated scripts to be executed as given user: &lt;user&gt;:/path/to/script.sh
+contextualization_command = &lt;list&gt;
+# list of ',' seperated services to start
+services = &lt;list&gt;
+# extra environment variables to define
+environment = VAR1=&lt;value&gt;,VAR2=&lt;value&gt;
+</pre>
+    </blockquote> <blockquote>
+    <pre>
+[hostname]
+hostname = &lt;hostname&gt;
+</pre>
+    </blockquote> <blockquote>
+    <pre>
+[dnsupdate]
+tsighost
+tsigkey
+server
+host
+hostname
+# or, derive hostname from template <prefix></prefix></pre>
+    </blockquote> <blockquote>
+    <pre>
+[noip]
+# publish ip at https://%(username)s:%(password)s@dynupdate.no-ip.com
+username   
+password
+hostname
+# or, derive hostname from template <prefix></prefix></pre>
+    </blockquote> <blockquote>
+    <pre>
+[condor]
+# host name
+hostname = &lt;FQDN&gt;
+# master host name
+condor_master = &lt;FQDN&gt;
+# shared secret key
+condor_secret = &lt;string&gt;
+#------------------------
+# collector name
+collector_name = &lt;string&gt;
+# condor user
+condor_user = &lt;string&gt;
+# condor group
+condor_group = &lt;string&gt;
+# condor directory
+condor_dir = &lt;path&gt;
+# condor admin
+condor_admin = &lt;path&gt;
+highport = 9700
+lowport = 9600
+uid_domain = <hostname>
+filesystem_domain = <hostname>
+allow_write = *.$uid_domain
+extra_vars =
+use_ips =
+</pre>
+    </blockquote> <blockquote>
+    <pre>
+[amildap]
+# base DN use to bind to LDAP
+base = &lt;dn&gt;
+# LDAP server URL
+url  = &lt;url&gt;
+</pre>
+    </blockquote> <blockquote>
+    <pre>
+[nss]
+password = files
+group = files
+shadow = files
+hosts = files
+bootparams = nisplus [NOTFOUND=return] files
+ethers = files
+netmasks = files
+networks = files
+protocols = files
+rpc = files
+services = files
+netgroup = nisplus
+publickey =  nisplus
+automount = files nisplus
+aliases = files nisplus
+</pre>
+    </blockquote> <blockquote>
+    <pre>
+[squid]
+backends = backends=cvmfs-stratum-one.cern.ch,cernvmfs.gridpp.rl.ac.uk,cvmfs.racf.bnl.gov,cvmfs02.grid.sinica.edu.tw,cvmfs.fnal.gov,cvmfs-atlas-nightlies.cern.ch
+cache_dir = /var/spool/squid
+cache_dir_size = 50000
+</pre>
+    </blockquote> <blockquote>
+    <pre>
+[ganglia]
+name = CernVM
+owner = unknown
+latlong = unknown
+url = unkonown
+location = unknown
+</pre>
+    </blockquote> <blockquote>
+    <pre>
+[puppet]
+# The puppetmaster server for puppet client. If not specified, puppet server will be started
+puppet_server=puppet
+#----------------------------------------------
+# If you wish to specif the port to connect to do so here
+puppet_port=8140
+# Where to log to. Specify syslog to send log messages to the system log.
+puppet_log=/var/log/puppet/puppet.log
+# You may specify other parameters to the puppet client here
+puppet_extra_opts=--waitforcert=500
+# Location of the main manifest
+#puppetmaster_manifest=/etc/puppet/manifests/site.pp
+# Where to log general messages to.
+# Specify syslog to send log messages to the system log.
+puppetmaster_log=syslog
+# You may specify an alternate port or an array of ports on which
+# puppetmaster should listen. Default is: 8140
+# If you specify more than one port, the puppetmaster ist automatically
+# started with the servertype set to mongrel. This might be interesting
+# if you'd like to run your puppetmaster in a loadbalanced cluster.
+# Please note: this won't setup nor start any loadbalancer.
+# If you'd like to run puppetmaster with mongrel as servertype but only
+# on one (specified) port, you have to add --servertype=mongrel to
+# PUPPETMASTER_EXTRA_OPTS.
+# Default: Empty (Puppetmaster isn't started with mongrel, nor on a
+# specific port)
+puppetmaster_ports=&quot;&quot;
+# Puppetmaster on a different port, run with standard webrick servertype
+#puppetmaster_ports=&quot;8141&quot;
+# Example with multiple ports which will start puppetmaster with mongrel
+# as a servertype
+puppetmaster_ports=( 18140 18141 18142 18143 )
+# You may specify other parameters to the puppetmaster here
+puppetmaster_extra_opts=--no-ca
+</pre>
+    </blockquote> <blockquote>
+    <pre>
+[tcpbuffers]
+# increase TCP max buffer size setable using setsockopt()
+# 16 MB with a few parallel streams is recommended for most 10G paths
+# 32 MB might be needed for some very long end-to-end 10G or 40G paths
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+# increase Linux autotuning TCP buffer limits
+# min, default, and max number of bytes to use
+# (only change the 3rd value, and make it 16 MB or more)
+net.ipv4.tcp_rmem = 4096 87380 16777216
+net.ipv4.tcp_wmem = 4096 65536 16777216
+# recommended to increase this for 10G NICS
+net.core.netdev_max_backlog = 30000
+# these should be the default, but just to be sure
+net.ipv4.tcp_timestamps = 1
+net.ipv4.tcp_sack = 1
+</pre>
+    </blockquote>
+<h3>Contextualization scripts</h3>
+<p>If the user data string starts with a line starting with #!, it will be interpreted as a bash script and executed. The same user data string may as well contain amiconfig contextualization options but they must be placed after the configuration script which must end with an exit statement. The interpreter can be /bin/sh or /bin/sh.before or /bin/sh.after depending on when the script is to be executed, before or after amiconfig contextualization. A script for the /bin/sh interpreter is executed after amiconfig contextualization.</p>
+
+<h2>Contextualization with cloud-init</h2>
+As an alternative to amiconfig, CernVM 3 supports <a href="https://cloudinit.readthedocs.org/en/latest/index.html">cloud-init contextualization</a>. Some of the contextualization tasks done by amiconfig can be done by cloud-init as well due to the native cloud-init modules for <a href="https://twiki.cern.ch/twiki/bin/view/LCG/CloudInit">cvmfs, ganglia, and condor</a>.
+
+<h2>Mixing user-data for µCernVM, amiconfig, and cloud-init</h2>
+<p>The user-data for cloud-init and for amiconfig can be mixed. The cloud-init syntax supports user data divided into multiple <a href="https://en.wikipedia.org/wiki/MIME">MIME</a> parts. One of these MIME parts can contain amiconfig or µCernVM formatted user-data. All contextualization agents (µCernVM, amiconfig, cloud-init) parse the user data and each one interprets what it understands.</p>
+
+<p>The following example illustrates how to mix amiconfig and cloud-init. We have an amiconfig context amiconfig-user-data that starts a catalog server for use with Makeflow:
+<blockquote><pre>
+[amiconfig]
+plugins = workqueue
+[workqueue]
+</pre></blockquote>
+<p>We also have a cloud-init context cloud-init-user-data that creates an interactive user "cloudy" with the password "password"</p>
+<blockquote><pre>
+users:
+  - name: cloudy
+    lock-passwd: false
+    passwd: $6$XYWYJCb.$OYPPN5AohCixcG3IqcmXK7.yJ/wr.TwEu23gaVqZZpfdgtFo8X/Z3u0NbBkXa4tuwu3OhCxBD/XtcSUbcvXBn1
+</pre></blockquote>
+<p>The following helper script creates our combined user data with multiple MIME parts:</p>
+<blockquote><pre>
+#!/usr/bin/python
+import sys
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+if len(sys.argv) == 1:
+    print("%s input-file:type ..." % (sys.argv[0]))
+    sys.exit(1)
+
+combined_message = MIMEMultipart()
+    for i in sys.argv[1:]:
+        (filename, format_type) = i.split(":", 1)
+    with open(filename) as fh:
+        contents = fh.read()
+    sub_message = MIMEText(contents, format_type, sys.getdefaultencoding())
+    sub_message.add_header('Content-Disposition', 'attachment; filename="%s"' % (filename))
+    combined_message.attach(sub_message)
+
+print(combined_message)
+</pre></blockquote>
+<p>This script is available in CernVM under /usr/bin/amiconfig-mime. We invoke it like</p>
+<blockquote><pre>
+amiconfig-mime cloud-init-user-data:cloud-config amiconfig-user-data:amiconfig > mixed-user-data
+</pre></blockquote>
+<p>In the same way, the µCernVM contextualization block can be another MIME part in a mixed context with MIME type ucernvm.</p>
+
+<h2>Extra Contextualization</h2>
+In addition to the normal user data, we have experimental support for "<a href="https://github.com/cernvm/cernvm-micro#extra-user-data">extra user data</a>", which might be a last resort where the normal user data is occupied by the infrastructure. For instance, glideinWMS seems to exclusively specify user data, making it necessary to modify the image for additional contextualization. Extra user data are injected in the image under /cernvm/extra-user-data and they are internally appended to the normal user data. This does not yet work with cloud-init though; only with amiconfig and the µCernVM bootloader.
+
+<h2>Examples</h2>
+<h3>A Makeflow Cluster</h3>
+<p>CernVM 3 supports the <a href="http://www.cse.nd.edu/~ccl/software/makeflow/">Makeflow</a> workflow engine.  Makeflow provides an easy way to define and run distributed computing workflows.  The contextualization is similar to condor.  There are three parameters:
+<blockquote><pre>
+catalog_server=hostname or ip address
+workqueue_project=project name, defaults to "cernvm" (similar to the shared secret in condor)
+workqueue_user=user name, defaults to workqueue (the user is created on the fly if necessary)
+</pre></blockquote></p>
+<p>In order to contextualize the master node, include an empty workqueue section, like
+<blockquote><pre>
+    [amiconfig]
+    plugins=workqueue
+    [workqueue]
+</pre></blockquote></p>
+<p>In order to start the work queue workers, specify the location of the catalog server, like
+<blockquote><pre>
+    [amiconfig]
+    plugins=workqueue
+
+    [workqueue]
+    catalog_server=128.142.142.107
+    workqueue_project=foobar
+</pre></blockquote></p>
+<p>The plugin will start one worker for every available CPU. Once the ensemble is up and running, makeflow can make use of the workqueue resources like so
+<blockquote><pre>
+makeflow -T wq -a -N foobar -d all -C 128.142.142.107:9097 makeflow.example
+</pre></blockquote></p>
+<p>Note that your cloud infrastructure needs to provide access to UDP and TCP ports 9097 on your virtual machines.</p>
+
+<h3>A Simple Condor Cluster</h3>
+
+<h3>A Proxy Server for CernVM-FS</h3>
+
+
