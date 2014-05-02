@@ -29,12 +29,14 @@ This updates both, the µCernVM bootloader and the operating system.  Unlike the
 + Fix xrdp server
 + Fix nfs server
 + Fix VMware Unity support
-+ Fix Copy&Paste on between host and guest VMware
++ Fix Copy&Paste between host and guest on VMware
 + Fix guest resolution resizing for VirtualBox
 + Fix CernVM Online contextualization with password protected contexts (CVM-277)
-+ Upgrade base system to Scientific Linux 6.5
++ Update kernel to 3.10.38
++ Update base system to Scientific Linux 6.5
 + Increase timeout to 10s when fetching context from CernVM Online
 + Use all of the hard disk by default and only restrict to 20G on specific contextualization
++ Add support for Google Compute Engine
 + Start ntpd by default
 + Remove prelink, makewhatis cron jobs (CVM-591)
 + Update default ROOT to 5.34.13 with gcc 4.8.1
