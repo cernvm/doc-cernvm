@@ -1,5 +1,5 @@
-CernVM 3.2
-==========
+04.05.2014: CernVM 3.2
+======================
 
 ## Overview
 
@@ -19,7 +19,7 @@ In order to update from CernVM 3.1, run
     sudo cernvm-update -k
     sudo cernvm-update -a
 
-This updates both, the µCernVM bootloader and the operating system.  Unlike the CernVM 3.1 security updates, this is a major update.  We recommend to use your hypervisor to <emph>make a VM snapshot</emph> before you update.
+This updates both the µCernVM bootloader and the operating system.  Unlike the CernVM 3.1 security updates, this is a major update.  We recommend to use your hypervisor to **make a VM snapshot before you update**.
 
 ### Changes to compared to CernVM 3.1
 + Fix autostart of amiconfig contextualized services
@@ -45,6 +45,17 @@ This updates both, the µCernVM bootloader and the operating system.  Unlike the
 + Enable 'cernvm' amiconfig plugin by default
 + Symlink /etc/grid-security/certificates to /cvmfs/grid.cern.ch/etc/grid-security/certificates
 
+### Enforce booting a previous version of CernVM
+
+Booting a previous version of CernVM can be enforced using the following contextualization snippet:
+
+    [ucernvm-begin]
+    cvmfs_tag=cernvm-system-<VERSION>
+    [ucernvm-end]
+
+The VERSION corresponds to the version of the cernvm-system RPM.  For an interactive virtual machine, hit `<TAB>` in the early boot menu and then `e` to edit the entry.  You can change the `cvmfs_repository_tag` boot parameter from HEAD to VERSION.
+
+Note that previous versions do not contain the latest security fixes.
 
 ## Installation
 

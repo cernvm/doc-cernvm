@@ -1,0 +1,65 @@
+\chapter{Scripts}
+\label{apx:scripts}
+
+
+\section{uni-list-instances.py}
+This script prints list of users virtual machines.
+The output of the script contains the following information: DNS\_NAME ``dns name of VM(if exists)''  ID\_ADR ``VM's ip address'' ID ``VM's id'' STATUS ``VM's status (running, stopped, etc.)''
+For operating script requires the following shell variables to be set:
+\begin{lstlisting}
+# users ec2 access key:
+EC2_ACCESS_KEY 
+# users ec2 secret key:
+EC2_SECRET_KEY
+# cloud ec2 url:
+EC2_URL
+# ec2 api version supported by this cloud:
+EC2_API_VERSION
+\end{lstlisting}
+The last variable is set by default to 2012-08-15.
+Sample script for setting up variables can be found at \url{http://alice03.spbu.ru/soft/boto-scripts/ec2en.sh}
+
+\noindent Example:
+\begin{lstlisting}
+./uni-list-instances.py
+DNS_NAME  ID_ADR 10.1.2.9 ID 27c1fbb1-6fda-4a19-bcfb-d0c0b2254600 STATUS running
+DNS_NAME  ID_ADR 10.1.2.8 ID b0771bc4-8a2d-48de-9f01-1e03ce8b9b9b STATUS running
+\end{lstlisting}
+Location: \url{http://alice03.spbu.ru/soft/boto-scripts/uni-list-instances.py}
+
+
+\section{uni-run-instances.py}
+Script deploys virtual machine with given options into cloud.\\
+Options: \texttt{./uni-run-instances.py  -t ``Instance Type'' -k ``name of ssh key'' -d ``user data (text format)'' ``image id''}\\
+The output of the script contains the following information: RESERVATION    ``reservation id''    ``owner id''    ``security group'' INSTANCE        ``instance id''      ``image id''    ``private dns name''     ``instance state''  ``ssh key name''   ``launch index''       ``instance type''      ``launch time''  ``placement''    ``monitoring state''    ``dns name'' ``root device type''
+
+For operating script requires the following shell variables to be set:
+\begin{lstlisting}
+# users ec2 access key:
+EC2_ACCESS_KEY 
+# users ec2 secret key:
+EC2_SECRET_KEY
+# cloud ec2 url:
+EC2_URL
+# ec2 api version supported by this cloud:
+EC2_API_VERSION
+\end{lstlisting}
+The last variable is set by default to 2012-08-15.
+
+\noindent Example:
+\begin{lstlisting}
+./uni-run-instances.py  -t m1.medium -k 'lxkey' -d "
+[amiconfig]
+plugins=cernvm
+[cernvm]
+contextualization_key=521b58d9e5274b0c803aadf71520cb17
+[ucernvm-begin]
+resize_rootfs=true
+cvmfs_branch=cernvm-devel.cern.ch
+cvmfs_server=hepvm.cern.ch
+[ucernvm-end]"  cernvm3
+RESERVATION     r-gjia2vsg      de985467-75d6-466e-829c-be6273c3c952    default
+INSTANCE        i-0001f0a1      ami-0000025f    ...
+\end{lstlisting}
+Location: \url{http://alice03.spbu.ru/soft/boto-scripts/uni-run-instances.py}
+

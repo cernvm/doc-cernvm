@@ -1,0 +1,75 @@
+\chapter{Known issues with CernVM on CloudStack}
+\label{cpt:issues}
+
+\section{Downloading and Configuring Image}
+One can download \cernvm\ from \url{http://cernvm.cern.ch/portal/downloads}.
+\cstack\ supports QCOW2, RAW, and VHD formats. 
+\cstack\ offerings available from \acrshort{ec2api} does not include disk offerings. 
+In order to lunch \cernvm\ correctly one need to enlarge \cernvm\ image up to size required for \cernvm\ instances.
+
+\begin{lstlisting}[deletekeywords={if}]
+dd if=/dev/zero of=~/20GB bs=1M count=20000
+qemu-img convert -O qcow2 ucernvm-devel.1.15-7.cernvm.2G2.x86_64.qcow2 \
+  ~/20GB ucernvm-devel.1.15-7.cernvm-2G.x86_64.qcow2
+\end{lstlisting}
+Resulting file must be uploaded to some HTTP server.
+And after that upload it to \cstack\ using web interface
+
+
+\section{Configuring CloudStack for CernVM}
+
+\subsection{Compute Offerings}
+\acrshort{ec2api} has standard default names for Compute Offerings\footnote{\url{http://aws.amazon.com/ec2/instance-types/\#instance-details}}, so it is suitable to create \cstack\ Compute Offerings m1.medium and m1.small in ``Service Offerings'' $\rightarrow$ ``Compute Offerings'' web-interface section.
+
+\subsection{defaultGuestNetwork configuration}
+For normal operation \cernvm\ requires additional tuning of networks
+\begin{itemize}
+	\item it requires access to 22 and 443 ports for head node
+	\item and non-firewalled network between nodes (for condor)
+\end{itemize}
+One can configure it using web-interface in Network $\rightarrow$ Security Groups section from \emph{cvmuser} account.
+Edit \emph{default} security group, add to ``Ingress rule''  the following rules:
+\begin{lstlisting}
+Protocol    Start Port    End Port    CIDR
+TCP         22            22          0.0.0.0/0
+TCP         443           443         0.0.0.0/0
+TCP         1024          60000       10.1.2.0/24
+\end{lstlisting}
+Where 10.1.2.0/24 is \acrshort{netg}. 
+
+
+\section{User-data}
+While creating user-data (for example, using \url{https://cernvm-online.cern.ch}) one needs to take into account the following:
+\begin{itemize}
+	\item \acrshort{ec2api} version must be set equal to version in /etc/cloudstack/management/ec2-service.properties on \acrshort{cms} (\host{A})
+	\item \acrshort{ec2api} URL -- address of  \acrshort{ec2api} of your cloud (\eg \url{https://HOST-A-internal:5443/awsapi})
+	\item EC2 Image AMI ID - must be set to  imageID, not image name
+	\item Proxy -- your internal proxy.
+	\item To allow elastiq to work correctly with self-signed certificates one need to add to user data the following script:
+	\begin{lstlisting}
+echo '[Boto]
+https_validate_certificates = False' >> /var/lib/condor/.boto
+chown condor: /var/lib/condor/.boto
+service elastiq restart
+	\end{lstlisting}
+	This solution may be considered as good enough, because it is assumed that master node communicates with cloud via isolated network. 
+	In general it is better to add your certificate authority to boto.
+\end{itemize}
+
+
+\section{CernVM Deployment}
+For deploying \cernvm instances we use scripts from Appendix~\ref{apx:scripts}. 
+These scripts are analogous to scripts from euca-tools, but written using boto and able to change \acrshort{ec2api} version (which is necessary for \cstack).
+To launch an instance one needs to set bash variables with access keys, url and \acrshort{ec2api} version (see Appendix~\ref{apx:scripts}) and run the following script:
+\begin{lstlisting}
+./uni-run-instances.py -t m1.medium -k 'lxkey' -d "
+[amiconfig]
+plugins=cernvm
+[cernvm]
+contextualization_key=521b58d9e5274b0c803aadf71520cb17
+[ucernvm-begin]
+resize_rootfs=true
+cvmfs_branch=cernvm-devel.cern.ch
+cvmfs_server=hepvm.cern.ch
+[ucernvm-end]" cernvm3
+\end{lstlisting}

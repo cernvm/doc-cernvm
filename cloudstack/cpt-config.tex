@@ -1,0 +1,132 @@
+\chapter{CloudStack Configuration and First Launch}
+\label{cpt:config}
+
+\section{Changing the Root Password}
+\label{sct:config:passwd}
+
+Following CloudStack documentation:
+\begin{quote}
+	During installation and ongoing cloud administration, you will need to log in to the UI as the root administrator. 
+	The root administrator account manages the CloudStack deployment, including physical infrastructure. 
+	The root administrator can modify configuration settings to change basic functionality, create or delete user accounts, and take many actions that should be performed only by an authorized person. 
+	When first installing CloudStack, be sure to change the default password to a new, unique value.
+	\begin{enumerate}
+		\item Open your favorite Web browser and go to this URL.
+			Substitute the IP address of your own Management Server:\\
+			\url{https://<management-server-ip-address>:6443/client}
+		\item Log in to the UI using the current root user ID and password. 
+			The default is admin, password.
+		\item Click Accounts.
+		\item Click the admin account name.
+		\item Click View Users.
+		\item Click the admin user name.
+		\item Click the Change Password button. \includegraphics[height=2ex]{figures/passwd}
+		\item Type the new password, and click OK.
+	\end{enumerate}
+\end{quote}
+
+
+\section{Adding Users and Keys}
+\label{sct:config:accounts}
+
+At least two users are required for standard \cstack\ configuration: administrator (default name admin) and non-privileged user.
+Moreover in order to use \acrshort{csapi} or \acrshort{ec2api} one needs authorization keys. 
+At first step we will create administrators keys following \cstack\ documentation:
+\begin{quote}
+	\begin{enumerate}
+		\item Open your favorite Web browser and go to this URL.
+			Substitute the IP address of your own Management Server:\\
+			\url{https://<management-server-ip-address>:6443/client}
+		\item Log in to the UI using the current root user ID and password. 
+		\item Click Accounts.
+		\item Click the admin account name.
+		\item Click View Users.
+		\item Click ``Generate keys''
+		\item Click ``Yes''
+		\item Copy API Key and Secret Key for future.
+	\end{enumerate}
+\end{quote}
+
+Now we are able to use \acrshort{csapi}\footnote{\url{http://cloudstack.apache.org/docs/api}}.
+Now let us create non-privileged user \emph{cvmuser} with account type ``User''.
+\begin{quote}
+	\begin{enumerate}
+		\item Open your favorite Web browser and go to this URL.
+			Substitute the IP address of your own Management Server:\\
+			\url{https://<management-server-ip-address>:6443/client}
+		\item Log in to the UI using the current root user ID and password. 
+		\item Click Accounts.
+		\item Click ``add accounts''
+		\item Fill all fields and set Account type to User.
+		\item Create user keys in the same way as for admin user.
+	\end{enumerate}
+\end{quote}
+
+
+\section{Setting Global Variables}
+\label{sct:config:globalvars}
+
+For our particular task (launching \cernvm\ based elastic clusters) we need to change a number of global variables:
+\begin{quote}
+	\begin{enumerate}
+		\item Open your favorite Web browser and go to this URL.
+			Substitute the IP address of your own Management Server:\\
+			\url{https://<management-server-ip-address>:6443/client}
+		\item Log in to the UI using the current root user ID and password. 
+		\item Click Global Settings
+		\item Use find field to locate variables.
+	\end{enumerate}
+\end{quote}
+Variables to be tuned:
+\begin{lstlisting}[deletekeywords={true,enable}]
+host                         "real host IP"  # example 195.19.226.152
+management.network.cidr      "real cidr"     # example 195.19.226.129/27
+expunge.delay                60
+expunge.interval             60
+expunge.workers              1               # usually you don't need more than one worker
+max.account.primary.storage  400             # quota of primary storage for user in Gb,
+                                             # depends on size of your storage
+max.project.primary.storage  400             # quota of primary storage for project in Gb,
+                                             # depends on size of your storage
+enable.ec2.api               true
+\end{lstlisting}
+Now one need to restart \acrshort{cms} service on \host{A}:
+\begin{lstlisting}
+service cloudstack-management restart
+\end{lstlisting}
+
+
+\section{Enabling \acrshort{ec2api}}
+For correct operation of \cernvm\ and elastic clusters one needs \acrshort{ec2api} configured.
+To configure \acrshort{ec2api} global variable, \texttt{enable.ec2.api} must be set to true (see Section~\ref{sct:config:globalvars}). 
+API access keys (see Section~\ref{sct:config:accounts}), private key and self-signed X.509 certificate are also required.
+\begin{lstlisting}
+EC2_AKEY="..."
+EC2_SKEY="..."
+cloudstack-aws-api-register --apikey=$EC2_AKEY --secretkey=$EC2_SKEY \
+  --cert=~/.globus/usercert.pem --url=https://alice22.spbu.ru:5443/awsapi/
+\end{lstlisting}
+
+
+\section{Zone Creation, Adding Storages and Hosts}
+
+Using web-interface.
+\begin{enumerate}
+	\item Open your favorite Web browser and go to this URL.
+		Substitute the IP address of your own Management Server:\\
+		\url{https://<management-server-ip-address>:6443/client}
+	\item Log in to the UI using the current root user ID and password. 
+		The default is admin, password
+	\item Click Infrastructure
+	\item Click add Zone
+	\item Step by step create zone
+	\begin{enumerate}
+		\item type BASIC
+		\item Hypervisor -- KVM
+		\item Pod network -- \acrfull{netm}
+		\item Guest network -- \acrshort{netg}. 
+			\emph{\acrshort{netg} and \acrshort{netm} must be different!}
+		\item host add -- put root username and  password
+		\item Secondary storage provider -- NFS
+	\end{enumerate}
+\end{enumerate}
