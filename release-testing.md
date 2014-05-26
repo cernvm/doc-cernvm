@@ -40,6 +40,7 @@ User data:
 # Checklist CERN OpenStack
 + Start with small and large partition
 + Check for sane /root/.ssh/authorized_keys
++ Check for afs
 
 # Checklist VBox, VMware
 + No error messages at boot
