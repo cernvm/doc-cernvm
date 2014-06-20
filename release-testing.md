@@ -23,9 +23,9 @@
 + Use CernVM to start on GCE
     wget http://cernvm.cern.ch/releases/ucernvm-images.1.17-10.cernvm.x86_64/ucernvm-testing.1.17-10.cernvm.x86_64.tar.gz
     gsutil cp ucernvm-testing.1.17-10.cernvm.x86_64.tar.gz gs://cvm3/ucernvm-testing.1.17-10.cernvm.x86_64.tar.gz
-    gcutil addimage cernvm3 gs://cvm3/ucernvm-testing.1.17-10.cernvm.x86_64.tar.gz
+    gcutil addimage cernvm3 gs://cvm3/ucernvm-testing.1.17-10.cernvm.x86_64.tar.gz --project cernvm-test
     ssh-keygen -f cvm-keypair
-    gcutil addinstance --image=cernvm3 --kernel="" <INSTANCE NAME> --metadata=cvm-user-data:$(base64 -w0 user-data) --authorized_ssh_keys=root:cvm-keypair.pub
+    gcutil addinstance --image=cernvm3 --kernel="" <INSTANCE NAME> --metadata=cvm-user-data:$(base64 -w0 user-data) --authorized_ssh_keys=root:cvm-keypair.pub --project cernvm-test
 
 User data:
 
@@ -79,7 +79,7 @@ User data:
 + ALICE event display
 
     . /cvmfs/alice.cern.ch/etc/login.sh
-    eval $(alienv add AliRoot/v5-04-Rev-09-1)
+    alienv enter AliRoot/v5-04-Rev-09-1
     alieve
 
 + CMS event display

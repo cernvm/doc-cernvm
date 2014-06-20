@@ -283,7 +283,7 @@ print(combined_message)
 </pre></blockquote>
 <p>This script is available in CernVM under /usr/bin/amiconfig-mime. We invoke it like</p>
 <blockquote><pre>
-amiconfig-mime cloud-init-user-data:cloud-config amiconfig-user-data:amiconfig > mixed-user-data
+amiconfig-mime cloud-init-user-data:cloud-config amiconfig-user-data:amiconfig-user-data > mixed-user-data
 </pre></blockquote>
 <p>In the same way, the µCernVM contextualization block can be another MIME part in a mixed context with MIME type ucernvm.</p>
 
