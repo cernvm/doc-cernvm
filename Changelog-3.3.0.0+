@@ -1,1 +1,2 @@
 Add octave, ansible, libsvm, liblinear, man-pages, bridge-utils, tunctl, distcc, nedit
+Kernel (3.10.57 and newer): bridge support, more cgroups
