@@ -1,3 +1,4 @@
 Add octave, ansible, libsvm, liblinear, man-pages, bridge-utils, tunctl, distcc, nedit, tuned, htop, ntfs-3g, ntfsprogs, rubygems, glusterfs, sysstat
-lxc tools
+lxc tools mod_wsgi
+Update to Azure client 0.8.12
 Kernel (3.10.57 and newer): bridge support, more cgroups
