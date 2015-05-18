@@ -43,6 +43,7 @@ User data:
 + Check for afs
 
 # Checklist VBox, VMware
++ Shutdown from GUI as normal user
 + No error messages at boot
 + No error messages during after-init-reboot
 + Check for correct time / running ntpd
