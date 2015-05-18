@@ -59,6 +59,7 @@ User data:
 
 # VMware or VirtualBox
 + root should not be able to login
++ Start a Docker container
 + Test xrdp service
 + contexutalize with a password protected context
 + ls /cvmfs/atlas.cern.ch /cvmfs/atlas-condb.cern.ch /cvmfs/atlas-nightlies.cern.ch /cvmfs/sft.cern.ch /cvmfs/grid.cern.ch
