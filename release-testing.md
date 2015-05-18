@@ -66,6 +66,7 @@ User data:
 + ls /cvmfs/atlas.cern.ch /cvmfs/atlas-condb.cern.ch /cvmfs/atlas-nightlies.cern.ch /cvmfs/sft.cern.ch /cvmfs/grid.cern.ch
 + Pull the network cable and reboot, should take longer but should not hang
 + SSO (ssh) through Kerberos (kinit)
++ Access oasis.opensciencegrid.org, ilc.desy.de, wenmr.egi.eu 
 + ATLAS event display
 
     source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
@@ -98,6 +99,8 @@ User data:
     SetupProject Brunel v45r1 --use PRConfig
     gaudirun.py /cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/PRConfig/v1r10/options/Brunel/PRTEST-COLLISION10-1000evts.py
 
+# Other repos
++ Connect to SL5, SL4 repositories
 
 # Upgrade
 + Upgrade from last production release
