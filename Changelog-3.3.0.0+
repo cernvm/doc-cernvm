@@ -3,3 +3,6 @@ lxc tools mod_wsgi tuned(cernvm-profiles), p7zip, p7zip-plugins
 Docker-CernVM, cernvm-fork
 Update to Azure client 0.8.12
 Kernel (3.10.57 and newer): bridge support, more cgroups
+Fixes for cernvm-update, cernvm-update-notification
+Use ConsoleKit/PolicyKit for user driven shutdown in GUI
+Kernel 3.18
