@@ -6,3 +6,4 @@ Kernel (3.10.57 and newer): bridge support, more cgroups
 Fixes for cernvm-update, cernvm-update-notification
 Use ConsoleKit/PolicyKit for user driven shutdown in GUI
 Kernel 3.18
+Swap space contextualization, ability to enable swap space on boot
