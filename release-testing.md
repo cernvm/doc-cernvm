@@ -1,6 +1,6 @@
 # Checklist Hypervisors
 + Start and contextualize as OVA in VBox
-+ Start in KVM
++ Start in KVM, test reaction to power button
 + Start in VMware
 + Use CernVM to start in CERN OpenStack
 
@@ -13,10 +13,11 @@
 + Use CernVM to start on EC2
     wget http://cernvm.cern.ch/releases/ucernvm-images.1.17-10.cernvm.x86_64/ucernvm-testing.1.17-10.cernvm.x86_64.fat
     mkdir bundle
-    ec2-bundle-image -c cert.pem -k pk.pem -u AWSACCOUNTID -i ucernvm-testing.1.17-10.cernvm.x86_64.fat --debug --destination bundle --arch x86_64 --kernel aki-825ea7eb
+    ec2-bundle-image -c cert.pem -k pk.pem -u AWSACCOUNTID -i ucernvm-testing.1.17-10.cernvm.x86_64.fat --debug --destination bundle --arch x86_64 --kernel aki-919dcaf8
     ec2-upload-bundle -m bundle/ucernvm-testing.1.17-10.cernvm.x86_64.fat.manifest.xml -b cernvm3 -a ACCESSKEY -s SECRETKEY
-    ec2-register -O ACCESSKEY -W SECRETKET  -a x86_64 cernvm3/ucernvm-testing.1.17-10.cernvm.x86_64.fat.manifest.xml  -d "CernVM 3.2 Testing"
-    ec2-run-instances ami-7a55b312 -b /dev/sdc=ephemeral0 -n 1 -k cvm-test-key -t m1.small -f user-data -g default
+    ec2-register -O ACCESSKEY -W SECRETKET -a x86_64 cernvm3/ucernvm-testing.1.17-10.cernvm.x86_64.fat.manifest.xml  -d "CernVM 3.2 Testing"
+    ec2-run-instances ami-7a55b312 -n 1 -k cvm-test-key -t m3.medium -f user-data -g default
+    (careful, small disk.  Don't add swap)
 
     Login as repomgr, root
 
@@ -36,11 +37,22 @@ User data:
     config_url=http://cernvm.cern.ch/config
     users=repomgr:repomgr:Taschentuch
     edition=Batch
+    swap_size=auto  # careful, on GCE there might not be enough disk space
+
+Cloud-init user data:
+
+    users:
+      - name: cloudy
+        lock-passwd: false
+        passwd: $6$XYWYJCb.$OYPPN5AohCixcG3IqcmXK7.yJ/wr.TwEu23gaVqZZpfdgtFo8X/Z3u0NbBkXa4tuwu3OhCxBD/XtcSUbcvXB
+
+Combine: `amiconfig-mime user-data-cloudinit:cloud-config user-data:amiconfig-user-data > user-data-mixed`
 
 # Checklist CERN OpenStack
 + Start with small and large partition
 + Check for sane /root/.ssh/authorized_keys
 + Check for afs
++ Check for cloud-init / amiconfig mixed user data
 
 # Checklist VBox, VMware
 + Shutdown from GUI as normal user
@@ -61,12 +73,15 @@ User data:
 # VMware or VirtualBox
 + root should not be able to login
 + Start a Docker container
+    sudo service docker start
+    docker run -i ubuntu /bin/bash
++ Create contextualized OVA image with cvm2ova
 + Test xrdp service
 + contexutalize with a password protected context
 + ls /cvmfs/atlas.cern.ch /cvmfs/atlas-condb.cern.ch /cvmfs/atlas-nightlies.cern.ch /cvmfs/sft.cern.ch /cvmfs/grid.cern.ch
-+ Pull the network cable and reboot, should take longer but should not hang
-+ SSO (ssh) through Kerberos (kinit)
-+ Access oasis.opensciencegrid.org, ilc.desy.de, wenmr.egi.eu 
++ Pull the network cable and reboot, can take longer but should not hang
++ SSO (ssh) through Kerberos (kinit)  [work on VMware only]
++ Access oasis.opensciencegrid.org, ilc.desy.de, wenmr.egi.eu
 + ATLAS event display
 
     source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
@@ -101,6 +116,7 @@ User data:
 
 # Other repos
 + Connect to SL5, SL4 repositories
++ On kernel change: test CMS OpenData VM, in particular VBox integration
 
 # Upgrade
 + Upgrade from last production release
