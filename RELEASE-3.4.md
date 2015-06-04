@@ -21,6 +21,12 @@ In order to update from CernVM 3.1, CernVM 3.2, or CernVM 3.3 run
 
 CernVM 3.4 requires a lockstep update of both the µCernVM bootloader and the operating system.  Unlike the CernVM security updates, this is a minor release.  We recommend to use your hypervisor to **make a VM snapshot before you update**.
 
+**Note on docker**: after upgrading from a previous version, please add your user account manually to the docker group through
+
+    sudo usermod -aG docker <USER NAME>
+
+**Note on VMware**: after upgrade, there might be boot messages claiming that the "vmblock" modules could not be loaded.  This messages is harmless.  You can remove the vmblock entry from /etc/rc.modules.
+
 ### Changes to compared to CernVM 3.3
 + Base OS updated to Scientific Linux 6.6
 + Docker support (`sudo service docker start`)
