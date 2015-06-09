@@ -21,7 +21,8 @@ In general we recommend using instance-store backed instances as described above
 
 First import the CernVM "Filesystem" image for Amazon from the CernVM download page into a minimally sized (1G) EBS volume:
 
-    ec2-import-volume -f raw -s 1 -z us-east-1a -b <S3 BUCKET> -o <S3 ACCESS KEY> -w <S3 SECRET KEY> cernvm-3.4.3.fat
+    ec2-import-volume -f raw -s 1 -z us-east-1a -b <S3 BUCKET> \
+      -o <S3 ACCESS KEY> -w <S3 SECRET KEY> cernvm-3.4.3.fat
 
 Other zones for the `-z` parameter can be listed with `ec2-describe-availability-zones`.  Use `ec2-describe-conversion-tasks` to get the import task id and to check when the import task finished.  Once finished, remove the intermediate image manifest in the S3 bucket with
 
@@ -42,6 +43,7 @@ Register an EBS backed image with
 
 You can use a [different PV-GRUB kernel]((http://docs.aws.amazon.com/AWSEC2/2011-07-15/UserGuide/index.html?UserProvidedkernels.html)) for other availability zones.  Start instances for the new image with
 
-    ec2-run-instances -b /dev/vdb=<SCRATCH SNAPHSOT ID> -n 1 -t m1.medium -k <KEYPAIR> -f <USER DATA> -g default <AMI>
+    ec2-run-instances -b /dev/vdb=<SCRATCH SNAPHSOT ID> -n 1 -t m1.medium \
+      -k <KEYPAIR> -f <USER DATA> -g default <AMI>
 
 **Note on instance types:** this recipe currently does not work for m1.small and c1.medium instances types which [automatically attach a swap volume](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html#InstanceStoreSwapVolumes). The CernVM bootloader mistakenly takes this swap partition as a scratch space.  This [will be fixed](https://sft.its.cern.ch/jira/browse/CVM-863) in a future release.
