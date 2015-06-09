@@ -41,7 +41,7 @@ Register an EBS backed image with
 
     ec2-register -a x86_64 -n <NAME> -d <DESCRIPTION> -s <IMAGE SNAPSHOT ID> --kernel aki-919dcaf8
 
-You can use a [different PV-GRUB kernel]((http://docs.aws.amazon.com/AWSEC2/2011-07-15/UserGuide/index.html?UserProvidedkernels.html)) for other availability zones.  Start instances for the new image with
+You can use a [different PV-GRUB kernel](http://docs.aws.amazon.com/AWSEC2/2011-07-15/UserGuide/index.html?UserProvidedkernels.html) for other availability zones.  Start instances for the new image with
 
     ec2-run-instances -b /dev/vdb=<SCRATCH SNAPHSOT ID> -n 1 -t m1.medium \
       -k <KEYPAIR> -f <USER DATA> -g default <AMI>
