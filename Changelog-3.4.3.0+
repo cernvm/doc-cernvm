@@ -1,3 +1,4 @@
 Add glideinwms-vm-core, glideinwms-vm-cernvm
 Add CloudStack/cloud-init support
+Add Microsoft Azure support
 Don't show removable devices on desktop
