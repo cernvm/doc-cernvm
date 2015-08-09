@@ -28,6 +28,21 @@
     ssh-keygen -f cvm-keypair
     gcutil addinstance --image=cernvm3 --kernel="" <INSTANCE NAME> --metadata=cvm-user-data:$(base64 -w0 user-data) --authorized_ssh_keys=root:cvm-keypair.pub --project cernvm-test
 
++ Use CernVM to start on Azure
+
+    wget http://cernvm.cern.ch/releases/ucernvm-images.2.2-0.cernvm.x86_64/ucernvm-devel.2.2-0.cernvm.x86_64.vhd
+    azure account download
+    azure account import <CREDENTIALS FILE>
+    azure storage account set cernvm01
+    azure storage account connectionstring show cernvm01
+    export AZURE_STORAGE_CONNECTION_STRING="<CONNECTION STRING>"
+    export AZURE_STORAGE_ACCESS_KEY="<ACCESS KEY>"
+    azure vm disk upload ucernvm-devel.2.2-0.cernvm.x86_64.vhd https://cernvm01.blob.core.windows.net/images/ucernvm-devel.2.2-0.cernvm.x86_64.vhd $AZURE_STORAGE_ACCESS_KEY
+    azure vm image create --os linux --blob-url https://cernvm01.blob.core.windows.net/images/ucernvm-devel.2.2-0.cernvm.x86_64.vhd cvm35-test01
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout cvm-azure.key -out cvm-azure.pem
+    chmod 0600 cvm-azure.key
+    azure vm create i-cvm35-test01 cvm35-test01 --ssh --ssh-cert cvm-azure.pem --custom-data user-data-mixed --location "West Europe" azure "@Aa0$(cat /dev/urandom | tr -cd [:alnum:] | head -c24)"
+
 User data:
 
     [cernvm]
