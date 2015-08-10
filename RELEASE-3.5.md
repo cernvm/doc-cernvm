@@ -33,7 +33,7 @@ If you have a running CernVM 3.4, there is no need to update the kernel.  It is 
 + Java 7 and Java 8 runtime environments
 + GUI fix: don't show removable devices on the Xfce4 desktop
 + Minor kernel update to 3.18.20
-+ A number of security fixes, mostly as a result of Scientific Linux 6.7 release: ansible, autofs, bind, cryptopp, curl, gnutls, grep, java-1.6.0-openjdk, firefox, httpd, libunwind, libuser, libxml2, net-snmp, ntp, python, python-keyring, python-pip, wpa_supplicant, xrdp
++ A number of security fixes, mostly as a result of Scientific Linux 6.7 release: ansible, autofs, bind, cryptopp, curl, gnutls, grep, java-1.6.0-openjdk, firefox, httpd, libunwind, libuser, libxml2, net-snmp, ntp, qemu-img, php, python, python-keyring, python-pip, sudo, wpa_supplicant, xrdp
 
 ### Enforce booting a previous version of CernVM
 
