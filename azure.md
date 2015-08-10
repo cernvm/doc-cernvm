@@ -1,7 +1,5 @@
 # Running on Microsoft Azure
 
-[as of CernVM 3.4.4]
-
 You can use the `azure` utility in CernVM to upload images to the Azure cloud storage and to control virtual machines.
 
 
