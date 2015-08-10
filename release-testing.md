@@ -42,6 +42,7 @@
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout cvm-azure.key -out cvm-azure.pem
     chmod 0600 cvm-azure.key
     azure vm create i-cvm35-test01 cvm35-test01 --ssh --ssh-cert cvm-azure.pem --custom-data user-data-mixed --location "West Europe" azure "@Aa0$(cat /dev/urandom | tr -cd [:alnum:] | head -c24)"
+    azure vm show i-cvm35-test01
 
 User data:
 
@@ -64,7 +65,6 @@ Cloud-init user data:
 Combine: `amiconfig-mime user-data-cloudinit:cloud-config user-data:amiconfig-user-data > user-data-mixed`
 
 # Checklist CERN OpenStack
-+ Start with small and large partition
 + Check for sane /root/.ssh/authorized_keys
 + Check for afs
 + Check for cloud-init / amiconfig mixed user data
