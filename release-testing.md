@@ -92,6 +92,7 @@ Combine: `amiconfig-mime user-data-cloudinit:cloud-config user-data:amiconfig-us
     docker run -i ubuntu /bin/bash
 + Create contextualized OVA image with cvm2ova
 + Test xrdp service
++ Start httpd
 + contexutalize with a password protected context
 + ls /cvmfs/atlas.cern.ch /cvmfs/atlas-condb.cern.ch /cvmfs/atlas-nightlies.cern.ch /cvmfs/sft.cern.ch /cvmfs/grid.cern.ch
 + Pull the network cable and reboot, can take longer but should not hang
