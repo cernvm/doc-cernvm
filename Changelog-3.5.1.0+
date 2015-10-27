@@ -1,1 +1,1 @@
-Add iotop, mod_fcgid
+Add iotop, mod_fcgid, libcap-devel, python-heatclient
