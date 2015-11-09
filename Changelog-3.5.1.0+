@@ -1,2 +1,2 @@
-Add iotop, mod_fcgid, libcap-devel, python-heatclient
+Add iotop, mod_fcgid, libcap-devel, python-heatclient, mod_gridsite
 Update: condor (8.0.6 --> 8.4), cctools (3.7.1 --> 5.2.3)

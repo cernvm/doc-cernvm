@@ -87,6 +87,7 @@ Combine: `amiconfig-mime user-data-cloudinit:cloud-config user-data:amiconfig-us
 
 # VMware or VirtualBox
 + root should not be able to login
++ open a screen (as root and as normal user)
 + Start a Docker container
     sudo service docker start
     docker run -i ubuntu /bin/bash
