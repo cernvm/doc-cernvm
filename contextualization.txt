@@ -254,6 +254,7 @@ plugins = workqueue
 </pre></blockquote>
 <p>We also have a cloud-init context cloud-init-user-data that creates an interactive user "cloudy" with the password "password"</p>
 <blockquote><pre>
+#cloud-config
 users:
   - name: cloudy
     lock-passwd: false
