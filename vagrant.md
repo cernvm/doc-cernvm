@@ -12,7 +12,7 @@ Browse into your developemnt directory (or another directory of your choice) and
 
     vagrant init CernVM
 
-where `CernVM` is the name from the `box add` command.  The `init` command places an initial `Vagrantfile` into the working directory.  In order to start CernVM and to connect to it through ssh use from this directory
+where `CernVM` is the name from the `box add` command.  The `init` command places an initial `Vagrantfile` into the working directory.  In order to start CernVM and to connect to it through ssh, run from this directory
 
     vagrant up
     vagrant ssh
