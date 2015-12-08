@@ -8,7 +8,7 @@ In order to start a CernVM under Vagrant, download the CernVM image for Vagrant 
 
     vagrant box add --name CernVM <cernvm image>.box
 
-Browse into your developemnt directory (or another directory of your choice) and run
+Browse into your development directory (or another directory of your choice) and run
 
     vagrant init CernVM
 
