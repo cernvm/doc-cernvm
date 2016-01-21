@@ -1,4 +1,4 @@
-# Running CernVM on CERN OpenStack
+# Running on CERN OpenStack
 
 CernVM runs on CERN's private cloud [openstack.cern.ch](https://openstack.cern.ch/).  Like other OpenStack installations, the CERN cloud can be managed with [nova tools](http://information-technology.web.cern.ch/book/cern-private-cloud-user-guide/command-line-tools/openstack-tools). The nova tools are installed, for instance, on lxplus and on CernVM. The following steps can be used from a desktop CernVM.
 
