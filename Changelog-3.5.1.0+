@@ -1,2 +1,4 @@
 Add iotop, mod_fcgid, libcap-devel, python-heatclient, mod_gridsite, voms, voms-devel, pandoc, jq, libatomic, trickle, valgrind-devel, iftop, python-sphinx, aspell, gnuchess, plotutils, links, gitk
 Update: condor (8.0.6 --> 8.4), cctools (3.7.1 --> 5.2.3)
+Take cvmfs proxy from micro-contextualization
+Set CMS_LOCAL_SITE from glideinWMS user data
