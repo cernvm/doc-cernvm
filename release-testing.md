@@ -64,6 +64,8 @@ Cloud-init user data:
 
 Combine: `amiconfig-mime user-data-cloudinit:cloud-config user-data:amiconfig-user-data > user-data-mixed`
 
+# Start vagrant boxes on Windows, Linux, Mac
+
 # Checklist CERN OpenStack
 + Check for sane /root/.ssh/authorized_keys
 + Check for afs
@@ -86,6 +88,7 @@ Combine: `amiconfig-mime user-data-cloudinit:cloud-config user-data:amiconfig-us
 
 
 # VMware or VirtualBox
++ no surprising cron jobs in /etc/cron.daily / cron.hourly / cron.d
 + root should not be able to login
 + open a screen (as root and as normal user)
 + Start a Docker container
