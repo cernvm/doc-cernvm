@@ -8,7 +8,7 @@
     export OS_CACERT=/etc/pki/tls/cert.pem
     wget http://cernvm.cern.ch/releases/ucernvm-images.1.17-10.cernvm.x86_64/ucernvm-testing.1.17-10.cernvm.x86_64.hdd
     glance image-create --name cernvm-3.2 --is-public False --disk-format raw --property os=linux --property hypervisor_type=kvm --container-format bare --file ucernvm-testing.1.17-10.cernvm.x86_64.hdd
-    nova boot cvm-test-3.2 --image cernvm-3.2 --flavor m1.medium --key-name cernvm-openstack --user-data user-data --meta cern-services=false
+    nova boot cvm-test-36 --image cernvm-3.2 --flavor m1.medium --key-name cernvm-openstack --user-data user-data --meta cern-services=false
 
 + Use CernVM to start on EC2
     wget http://cernvm.cern.ch/releases/ucernvm-images.1.17-10.cernvm.x86_64/ucernvm-testing.1.17-10.cernvm.x86_64.fat
@@ -65,6 +65,11 @@ Cloud-init user data:
 Combine: `amiconfig-mime user-data-cloudinit:cloud-config user-data:amiconfig-user-data > user-data-mixed`
 
 # Start vagrant boxes on Windows, Linux, Mac
+
+    vagrant box add --force --name cvm-test <box>
+    vagrant init cvm-test
+    vagrant up
+    vagrant ssh
 
 # Checklist CERN OpenStack
 + Check for sane /root/.ssh/authorized_keys
