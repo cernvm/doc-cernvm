@@ -30,11 +30,13 @@ Unlike the CernVM security updates, this is a minor release.  We recommend to us
 + AFS update to 1.6.17
 + Add support for vagrant as a host
 + New packages: aspell, gitk, gnuchess, iftop, iotop, jq, libatomic, libcap-devel, links, mod\_fcgid, mod\_gridsite, pandoc, plotutils, python-heatclient, python-sphinx, trickle, valgrind-devel, voms, voms-devel
-+ Major version updates: condor (8.0.4 --> ), cctools (3.7.1 --> 5.2.0)
++ Major version updates: condor (8.0.4 --> 8.4.6), cctools (3.7.1 --> 5.2.3)
++ Provide option to automatically resize the root partition
 + Improved speed of the early boot phase
-+ Fix occasional data corruption on older pre-SL7 libvirt
-+ Disable logwatch cron job
 + Improve integration with glideinWMS
++ Fix occasional data corruption on older pre-SL7 libvirt
++ Fix cloud-init contextualization on OpenNebula
++ Disable logwatch cron job
 + Use cvmfs proxy from micro-contextualization
 + Security fixes: firefox, java-1.7.0
 
@@ -54,12 +56,12 @@ Note that previous versions do not contain the latest security fixes.
 
 Download the latest images from [our download page](http://cernvm.cern.ch/portal/downloads).  The image is generic and available in different file formats for different hypervisors. The image needs to be contextualized to become either a graphical development VM or a batch virtual machine for the cloud.
 
-Detailed instructions are available for [VirtualBox](http://cernvm.cern.ch/portal/vbprerequisites), [VMware](http://cernvm.cern.ch/portal/vmwprerequisites), [KVM](http://cernvm.cern.ch/portal/kvm), [CERN OpenStack](http://cernvm.cern.ch/portal/openstack), [Amazon EC2](http://cernvm.cern.ch/portal/ec2), [Google Compute Engine](http://cernvm.cern.ch/portal/gce), and [Microsoft Azure](http://cernvm.cern.ch/portal/azure).
+Detailed instructions are available for [VirtualBox](http://cernvm.cern.ch/portal/vbprerequisites), [VMware](http://cernvm.cern.ch/portal/vmwprerequisites), [Vagrant](http://cernvm.cern.ch/portal/vagrant),  [KVM](http://cernvm.cern.ch/portal/kvm), [Docker](http://cernvm.cern.ch/docker), [CERN OpenStack](http://cernvm.cern.ch/portal/openstack), [Amazon EC2](http://cernvm.cern.ch/portal/ec2), [Google Compute Engine](http://cernvm.cern.ch/portal/gce), and [Microsoft Azure](http://cernvm.cern.ch/portal/azure).
 
 
 ## Contextualization
 
-A CernVM needs to be contextualized on first boot.  The process of contextualization assigns a profile to the particular CernVM 3 instance.  For instance, a CernVM can have the profile of a graphical VM used for development on a laptop; applying another context let the CernVM become a worker node in the cloud.
+In most cases, a CernVM needs to be contextualized on first boot.  The process of contextualization assigns a profile to the particular CernVM 3 instance.  For instance, a CernVM can have the profile of a graphical VM used for development on a laptop; applying another context let the CernVM become a worker node in the cloud.
 
 The [CernVM Online portal](https://cernvm-online.cern.ch) lets you define and store VM profiles in one place. Once defined, the VM profiles can quickly be applied to any newly booted CernVM instance using a pairing mechanism on the login prompt.  Please visit the following pages for more information about how to [create new context templates](http://cernvm.cern.ch/portal/online/documentation/create-new-context) and [pair an instance](http://cernvm.cern.ch/portal/online/documentation/pairing-the-instance) with given template.
 
@@ -77,10 +79,9 @@ The CernVM 3 strong version number consists of 4 parts: 3.X.Y.Z.  Major version 
 
 ## Next steps
 
-Once booted and contextualized, you can use ssh to connect to your virtual machine. [SSHFS](http://fuse.sourceforge.net/sshfs.html) and shared folders provide you an easy means to exchange files between the host and CernVM.
+Once booted and contextualized, you can use ssh to connect to your virtual machine. [SSHFS](http://fuse.sourceforge.net/sshfs.html) and shared folders provide you an easy means to exchange files between the host and CernVM.  If you use the vagrant image on a Linux or OS X host, shared folders are provided by NFS, which enables support for hard links.
 
 For storing data and analysis results, we recommend not to use the root partition.  Instead, attach a second hard drive to the virtual machine or use shared folders.  This way, you can move data between virtual machines and the data remains intact even in case the virtual machine ends up in an unsuable state.
-
 
 ## ROOT
 
@@ -132,6 +133,14 @@ If a file /mnt/.rw/swapfile exists, it will picked up automatically on boot as a
 
 where `<SIZE>` can be anything understood by `fallocate -l` or it can be `auto`, in which case CernVM uses 2G/core.
 
+## Resizing the Root Partition
+
+If you increase your virtual hard drive, you can have CernVM increase your root partition accordingly.  To do so, run
+
+    sudo touch /mnt/.rw/aux/resize
+
+and reboot.  Resizing the root partition is a delicate operation, please **make a VM snapshot before you proceed**.
+
 ## Makeflow
 
 CernVM 3 supports the [Makeflow](http://www.cse.nd.edu/~ccl/software/makeflow/) workflow engine. Makeflow provides an easy way to define and run distributed computing workflows. The contextualization is similar to condor. There are three parameters:
@@ -167,6 +176,7 @@ Note that your cloud infrastructure needs to provide access to UDP and TCP ports
 ## Known Issues
 
 + If the keyboard layout changes, run `sudo system-config-keyboard` to bring it back to match your keyboard
++ Unity feature in latest VMware Fusion does not work
 
 
 ## Debugging
