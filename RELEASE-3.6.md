@@ -56,7 +56,7 @@ Note that previous versions do not contain the latest security fixes.
 
 Download the latest images from [our download page](http://cernvm.cern.ch/portal/downloads).  The image is generic and available in different file formats for different hypervisors. The image needs to be contextualized to become either a graphical development VM or a batch virtual machine for the cloud.
 
-Detailed instructions are available for [VirtualBox](http://cernvm.cern.ch/portal/vbprerequisites), [VMware](http://cernvm.cern.ch/portal/vmwprerequisites), [Vagrant](http://cernvm.cern.ch/portal/vagrant),  [KVM](http://cernvm.cern.ch/portal/kvm), [Docker](http://cernvm.cern.ch/docker), [CERN OpenStack](http://cernvm.cern.ch/portal/openstack), [Amazon EC2](http://cernvm.cern.ch/portal/ec2), [Google Compute Engine](http://cernvm.cern.ch/portal/gce), and [Microsoft Azure](http://cernvm.cern.ch/portal/azure).
+Detailed instructions are available for [VirtualBox](http://cernvm.cern.ch/portal/vbinstallation), [VMware](http://cernvm.cern.ch/portal/vmwinstallation), [Vagrant](http://cernvm.cern.ch/portal/vagrant),  [KVM](http://cernvm.cern.ch/portal/kvm), [Docker](http://cernvm.cern.ch/docker), [CERN OpenStack](http://cernvm.cern.ch/portal/openstack), [Amazon EC2](http://cernvm.cern.ch/portal/ec2), [Google Compute Engine](http://cernvm.cern.ch/portal/gce), and [Microsoft Azure](http://cernvm.cern.ch/portal/azure).
 
 
 ## Contextualization
