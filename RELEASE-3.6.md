@@ -172,6 +172,27 @@ Once the ensemble is up and running, makeflow can make use of the workqueue reso
 
 Note that your cloud infrastructure needs to provide access to UDP and TCP ports 9097 on your virtual machines.
 
+## x32 ABI
+
+the [x32 ABI](https://sites.google.com/site/x32abi) is an architecture variation of x86\_64.  The x32 ABI provides all the features
+of x86\_64 but with shorter 32bit pointers, thereby saving memory.  This
+[makes](https://indico.cern.ch/event/468210/contribution/3/attachments/1218724/1780705/slides.pdf) [it](https://indico.cern.ch/event/217511/contribution/26/attachments/349291/486933/slides.pdf) [interesting](https://indico.cern.ch/event/214319/contribution/2/attachments/339806/474205/x32ABI.pdf) for high-energy physics software stacks.
+
+CernVM contains an x32 ABI compatible environemnt for testing and experiments.  Use the following commands to enter it
+
+    mount --bind /dev /opt/x32-v02/dev
+    mount --bind /proc /opt/x32-v02/proc
+    mount --bind /sys /opt/x32-v02/sys
+    mount --bind /etc/resolv.conf /opt/x32-v02/etc/resolv.conf
+    chroot /opt/x32-v02 bash
+
+The following commands create a docker container from the available x32 environment:
+
+    cd /opt/x32-v02
+    mv etc/resolv.conf etc/resolv.conf.buildstage
+    tar cfz lfs-x32.tar.gz \
+      bin etc home lib libx32 media mnt opt root sbin srv tmp usr var
+    cat lfs-x32.tar.gz | docker import - <IMAGE NAME>
 
 ## Known Issues
 
