@@ -146,6 +146,9 @@ Combine: `amiconfig-mime user-data-cloudinit:cloud-config user-data:amiconfig-us
     SetupProject Brunel v50r1 --use PRConfig
     gaudirun.py /cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/PRConfig/v1r10/options/Brunel/PRTEST-COLLISION10-1000evts.py
 
+# Docker
++ Import and start CernVM docker container
+
 # Other repos
 + Connect to SL5, SL4 repositories
 + On kernel change: test CMS OpenData VM, in particular VBox integration
