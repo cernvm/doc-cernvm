@@ -1,11 +1,17 @@
-# Technology Preview: CernVM as a Docker Container
+# CernVM as a Docker Container
 
 The CernVM docker container resembles the µCernVM idea in docker.  It consists mainly of a busybox and the [parrot](http://ccl.cse.nd.edu/software/parrot) sandboxing tool.  The rest of the operating system is loaded on demand.
 
 Alternatively, it is possible to bind mount the cvmfs operating system repository into the docker container, and then the container will
 automatically use this instead of parrot.
 
-In order to import the image, run
+## Limitations of the CernVM Docker Container
+
+The CernVM docker container is a runtime environment only.  It can be used to start arbitrary commands "dockerized" in CernVM.  Due to its internal mechanis, it cannot be used, however, as a base image to create derived Docker containers, e.g. with a `Dockerfile`.
+
+## Importing and Running the Container
+
+In order to import the image, ensure that the docker service is running and execute
 
     cat <CernVM Docker tarball> | docker import - my_cernvm
 
