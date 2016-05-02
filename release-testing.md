@@ -8,7 +8,7 @@
     export OS_CACERT=/etc/pki/tls/cert.pem
     wget http://cernvm.cern.ch/releases/ucernvm-images.1.17-10.cernvm.x86_64/ucernvm-testing.1.17-10.cernvm.x86_64.hdd
     glance image-create --name cernvm-3.2 --is-public False --disk-format raw --property os=linux --property hypervisor_type=kvm --container-format bare --file ucernvm-testing.1.17-10.cernvm.x86_64.hdd
-    nova boot cvm-test-36 --image cernvm-3.2 --flavor m1.medium --key-name cernvm-openstack --user-data user-data --meta cern-services=false
+    nova boot cvm-test-36 --image cernvm-3.2 --flavor m1.medium --key-name cernvm-openstack --user-data user-data-mixed --meta cern-services=false
 
 + Use CernVM to start on EC2
     wget http://cernvm.cern.ch/releases/ucernvm-images.1.17-10.cernvm.x86_64/ucernvm-testing.1.17-10.cernvm.x86_64.fat
@@ -60,7 +60,7 @@ Cloud-init user data:
     users:
       - name: cloudy
         lock-passwd: false
-        passwd: $6$XYWYJCb.$OYPPN5AohCixcG3IqcmXK7.yJ/wr.TwEu23gaVqZZpfdgtFo8X/Z3u0NbBkXa4tuwu3OhCxBD/XtcSUbcvXB
+        passwd: $6$XYWYJCb.$OYPPN5AohCixcG3IqcmXK7.yJ/wr.TwEu23gaVqZZpfdgtFo8X/Z3u0NbBkXa4tuwu3OhCxBD/XtcSUbcvXBn1
 
 Combine: `amiconfig-mime user-data-cloudinit:cloud-config user-data:amiconfig-user-data > user-data-mixed`
 
@@ -80,6 +80,7 @@ Combine: `amiconfig-mime user-data-cloudinit:cloud-config user-data:amiconfig-us
 + Shutdown from GUI as normal user
 + No error messages at boot
 + No error messages during after-init-reboot
++ Suspend and resume
 + Check for correct time / running ntpd
 + Login via ssh
 + Start ROOT
@@ -119,10 +120,16 @@ Combine: `amiconfig-mime user-data-cloudinit:cloud-config user-data:amiconfig-us
     SetupProject Panoramix
     python $myPanoramix -f none
 
+    # Alternatively
+
+    source /cvmfs/lhcb.cern.ch/lib/lhcb/LBSCRIPTS/prod/InstallArea/scripts/LbLogin.sh -c x86_64-slc6-gcc48-opt
+    SetupProject Panoramix v23r0
+    python $myPanoramix -f none
+
 + ALICE event display
 
     . /cvmfs/alice.cern.ch/etc/login.sh
-    alienv enter AliRoot/v5-04-Rev-09-1
+    alienv enter AliRoot/v5-05-Rev-32-1
     alieve
 
 + CMS event display
@@ -136,7 +143,7 @@ Combine: `amiconfig-mime user-data-cloudinit:cloud-config user-data:amiconfig-us
 + LHCb test job
 
     source /cvmfs/lhcb.cern.ch/etc/login.sh
-    SetupProject Brunel v45r1 --use PRConfig
+    SetupProject Brunel v50r1 --use PRConfig
     gaudirun.py /cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/PRConfig/v1r10/options/Brunel/PRTEST-COLLISION10-1000evts.py
 
 # Other repos
