@@ -9,6 +9,10 @@ automatically use this instead of parrot.
 
 The CernVM docker container is a runtime environment only.  It can be used to start arbitrary commands "dockerized" in CernVM.  Due to its internal mechanis, it cannot be used, however, as a base image to create derived Docker containers, e.g. with a `Dockerfile`.
 
+Instead you can wrap the setup commands that would be part of the `Dockerfile` into a script and pass this script as parameter to the `/init` command line (see below).  The script can be bind mounted into the container with the `-v` option, like 
+
+    docker run -v /path/to/script:/bootstrap ... /init /bootstrap/script.sh
+
 ## Importing and Running the Container
 
 In order to import the image, ensure that the docker service is running and execute
@@ -27,7 +31,7 @@ In case CernVM-FS is mounted on the docker host, it is possible to help the cont
 
     docker run -v /cvmfs/cernvm-prod.cern.ch:/cvmfs/cernvm-prod.cern.ch ...
 
-In this case, there is no Parrot environment.  Every repository that should be available in the docker container needs to be mapped with another `-v ...` parameter.
+In this case, there is no Parrot environment.  Every repository that should be available in the docker container needs to be mapped with another `-v ...` parameter. **Note:** the cernvm-prod.cern.ch repository (or other OS hosting cvmfs repositores) should be mounted with the `CVMFS_CLAIM_OWNERSHIP=no` option.  You can create a file `/etc/cvmfs/config.d/cernvm-prod.cern.ch.local` and add the configuration parameter.  This will ensure that `sudo` works in your docker container.
 
 The image can be further contextualized by environment variables.  To
 turn on more verbose output:
