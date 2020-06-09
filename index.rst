@@ -13,6 +13,9 @@ Contents
    :maxdepth: 2
 
    cpt-releasenotes
+   cpt-launch
+   cpt-context
+   cpt-bootloader
 
 
 Contact and Authors
