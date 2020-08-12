@@ -1,3 +1,5 @@
+.. _sct_release:
+
 Release Notes
 =============
 

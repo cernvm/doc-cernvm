@@ -213,3 +213,243 @@ Virtual machines can be listed, started, stopped, and removed with:
 
     > virsh destroy CernVM
     Domain CernVM destroyed
+
+
+CernVM as a Docker Container
+----------------------------
+
+The CernVM docker container resembles the µCernVM idea in docker. It consists mainly of a busybox and the `parrot <https://ccl.cse.nd.edu/software/parrot>`_ sandboxing tool. The rest of the operating system is loaded on demand. Note that newer versions of docker prevent the use of the ``ptrace()`` call, which is required for parrot. This needs to be explicitly allowed by the ``--security-opt seccomp:unconfined`` parameter to ``docker run ...``
+
+Alternatively, it is possible to bind mount the cvmfs operating system repository into the docker container, and then the container will automatically use this instead of parrot.
+
+
+Limitations of the CernVM Docker Container
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The CernVM docker container is a runtime environment only. It can be used to start arbitrary commands "dockerized" in CernVM. Due to its internal mechanis, it cannot be used, however, as a base image to create derived Docker containers, e.g. with a ``Dockerfile``.
+
+Instead you can wrap the setup commands that would be part of the ``Dockerfile`` into a script and pass this script as parameter to the ``/init`` command line (see below). The script can be bind mounted into the container with the ``-v`` option, like
+
+::
+
+    docker run --security-opt seccomp:unconfined -v /path/to/script:/bootstrap ... \
+      /init /bootstrap/script.sh
+
+
+Importing and Running the Container
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to import the image, ensure that the docker service is running and execute
+
+::
+
+    cat <CernVM Docker tarball> | docker import - my_cernvm
+
+In order to start an interactive shell, run
+
+::
+
+    docker run --security-opt seccomp:unconfined -it my_cernvm /init
+
+The initial command always needs to be ``/init``, but any other command can be appended, for instance
+
+::
+
+    docker run --security-opt seccomp:unconfined -it my_cernvm /init ls -lah
+
+In case CernVM-FS is mounted on the docker host, it is possible to help the container and bind mount the operating system repository like
+
+::
+
+    docker run -v /cvmfs/cernvm-prod.cern.ch:/cvmfs/cernvm-prod.cern.ch ...
+
+In this case, there is no Parrot environment. Every repository that should be available in the docker container needs to be mapped with another ``-v ...`` parameter. **Note**: the cernvm-prod.cern.ch repository (or other OS hosting cvmfs repositores) should be mounted with the ``CVMFS_CLAIM_OWNERSHIP=no`` option. You can create a file ``/etc/cvmfs/config.d/cernvm-prod.cern.ch.local`` and add the configuration parameter. This will ensure that sudo works in your docker container.
+
+
+The image can be further contextualized by environment variables. To turn on more verbose output:
+
+::
+
+    docker run --security-opt seccomp:unconfined -e CERNVM_DEBUG=1 -e PARROT_OPTIONS="-d cvmfs" -it ...
+
+To use another operating system provided by CernVM-FS:
+
+::
+
+    docker run --security-opt seccomp:unconfined -e CERNVM_ROOT=/cvmfs/cernvm-sl7.cern.ch/cvm4 -it ...
+
+or
+
+::
+
+    docker run --security-opt seccomp:unconfined -e CERNVM_ROOT=/cvmfs/cernvm-slc5.cern.ch/cvm3 -it ...
+
+or
+
+::
+
+    docker run --security-opt seccomp:unconfined -e CERNVM_ROOT=/cvmfs/cernvm-slc4.cern.ch/cvm3 -it ...
+
+Standard LHC cvmfs repositories are present by default, other repositories can be added with
+
+::
+
+    docker run --security-opt seccomp:unconfined -e PARROT_CVMFS_REPO=" \
+      <REPONAME>:url=<STRATUM1-URL>,pubkey=/UCVM/keys/<KEYNAME> \
+      <REPONAME>: ..."
+
+The corresponding public key needs to be stored in the container under /UCVM/keys first.
+
+
+OpenStack
+---------
+
+Publicly Available Images at CERN
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The CERN OpenStack interface provides publicly available CernVM images for the x86_64 architecture. The CernVM 4 images are CC7 compatible. The image name indicates the "bootloader version". The bootloader contains the Linux kernel and a CernVM-FS client. The actual operating system is loaded from a CernVM-FS repository.
+
+To start a new CernVM instance,
+
+  * Log on to lxplus-cloud.cern.ch
+  * Check the available CernVM images from ``openstack image list``
+  * Check the available virtual machine flavors from ``openstack flavor list``
+  * Start a new instance like
+
+    ::
+
+        openstack server create --flavor cvm.medium --image "CernVM 4 - Bootloader v2020.04-1 [2020-04-01]" ...
+
+    Add ``--property cern-services=false`` to speed up VM creation
+
+CernVM images can be :ref:`contextualized with cloud-init and amiconfig <sct_context>`, general information about the image can be found in the :ref:`release notes <sct_release>`.
+
+
+Manually Uploading Images (outside CERN)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To be completed.
+
+
+Amazon EC2
+----------
+
+To run instances on Amazon EC2, the `CernVM image <https://cernvm.cern.ch/portal/downloads>`_ must be uploaded first to Amazon S3 ("instance storage" instant types) or to Amazon EBS (EBS backed instance types). Note that you need to provision the image in the same Amazon region where you intend to run your instances. Use ``ec2-describe-regions`` for a list of available regions.
+
+Preparation
+~~~~~~~~~~~
+
+In order to avoid passing credentials and region to each and every command, export the following variables:
+
+::
+
+    export AWS_ACCESS_KEY=<ACCESS KEY>
+    export AWS_SECRET_KEY=<SECRET KEY>
+    export EC2_URL=https://ec2.<REGION>.amazonaws.com
+
+If you want to use `Amazon's "enhanced networking" <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/enhanced-networking.html>`_ capabilities or if you have a recent account with AWS without support for "EC2 Classic Mode", you need to first create a virtual network (`"Virtual Private Cloud (VPC)" <https://aws.amazon.com/documentation/vpc/>`_). There are many options to configure such a virtual network. Here, we'll create a simple private network with a NAT to the Internet. You can also use the `Amazon Web Console <https://console.aws.amazon.com/vpc>`_ to create the VPC.
+
+::
+
+    ec2-create-vpc 10.1.0.0/16 --tenancy default
+      --> <VPC ID>
+    ec2-create-subnet -c <VPC ID> -i 10.1.0.0/16
+      --> <SUBNET ID>  # needed for ec2-run-instances
+    ec2-create-route-table <VPC ID>
+      --> <ROUTE TABLE ID>
+    ec2-associate-route-table <ROUTE TABLE ID> -s <SUBNET ID>
+    ec2-create-internet-gateway
+      --> <GATEWAY ID>
+    ec2-attach-internet-gateway <GATEWAY ID> -c <VPC ID>
+    ec2-create-route <ROUTE TABLE ID> -r 0.0.0.0/0 -g <GATEWAY ID>
+    ec2-create-group cernvm-firewall -c <VPC ID> -d "default inbound/outbound port openings"
+      --> <SECURITY GROUP ID>  # required for ec2-run-instances
+    # Unrestricted inbound access:
+    ec2-authorize <SECURITY GROUP ID> --protocol all --cidr 0.0.0.0/0
+    # Or: ssh only inbound access:
+    ec2-authorize <SECURITY GROUP ID> --protocol tcp --port-range 22 --cidr 0.0.0.0/0
+    ec2-create-keypair key-cernvm-<REGION>  # required for ec2-run-instances
+
+Copy the "BEGIN RSA" / "END RSA" block from the last command into a file ``key-cernvm-<REGION>.pem`` and run ``chmod 0600 key-cernvm-<REGION>.pem``. As a further prerequisite, you need to have an S3 storage bucket in your target region, which you can create through the Amazon Web Console.
+
+
+Using Images from EBS for "EBS Backed" Instance Types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following steps are necessary to prepare the EBS volume snapshots and the image. First import the CernVM “Raw (HVM)” image for Amazon from the CernVM download page into a minimally sized (1G) EBS volume:
+
+::
+
+    ec2-import-volume -o $AWS_ACCESS_KEY -w $AWS_SECRET_KEY -f raw -s 1 \
+      -z <AVAILABILITY ZONE> --bucket <S3 BUCKET> <CERNVM IMAGE>.hvm
+
+The zones for the ``-z`` parameter can be listed with ``ec2-describe-availability-zones``. Use ``ec2-describe-conversion-tasks`` to get the import task id and to check when the import task finished. Once finished, remove the intermediate image manifest in the S3 bucket with
+
+::
+
+    ec2-delete-disk-image -t <IMPORT TASK ID>
+
+Use ``ec2-describe-volumes`` to get the volume id of the imported volume and create a snapshot with
+
+::
+
+    ec2-create-snapshot <IMAGE VOLUME ID>
+      --> <IMAGE SNAPSHOT ID>
+
+In addition to the image volume, create a scratch volume (e.g. with 25G) and a scratch snapshot using
+
+::
+
+    ec2-create-volume -s 25 -z <AVAILABILITY ZONE>
+      --> <SCRATCH VOLUME ID>
+    ec2-create-snapshot <SCRATCH VOLUME ID>
+      --> <SCRATCH SNAPSHOT ID>
+
+Register an EBS backed image with
+
+::
+
+    ec2-register -n <NAME> -a x86_64 -d <DESCRIPTION> -snapshot <IMAGE SNAPSHOT ID< \
+      -b /dev/sdb=<SCRATCH SNAPSHOT ID> --virtualization-type hvm --sriov simple
+      --> <AMI ID>
+
+Start instances for the new image with
+
+::
+
+    ec2-run-instances <AMI ID> -n <NUMBER OF INSTANCES> -k key-cernvm-<REGION> \
+      -s <SUBNET ID> --group <SECGROUP ID> -t <INSTANCE TYPE> -f <USER DATA FILE> \
+      # optionally: --associate-public-ip-address true --ebs-optimized
+
+
+Using Images from S3 for "Instance Store" Instance Types
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the following commands to upload an image for use with "Instance Store" image types:
+
+::
+
+    ec2-bundle-image -u <AWS ACCOUNT NUMBER> -c <AWS CERTIFICATE FILE> -k <AWS PRIVATE KEY FILE> \
+      -i <CERNVM IMAGE>.hvm --arch x86_64
+    ec2-upload-bundle -a $AWS_ACCESS_KEY -s $AWS_SECRET_KEY \
+      -m /tmp/<CERNVM IMAGE>.hvm.manifest.xml -b <S3 BUCKET> --region <REGION>
+    ec2-register <S3 BUCKET>/<CERNVM IMAGE>.hvm.manifest.xml -a x86_64 -d <DESCRIPTION> \
+      --virtualization-type hvm --sriov simple
+      --> <AMI ID>
+
+
+Start instances for the new image with
+
+::
+
+    ec2-run-instances <AMI ID> -n <NUMBER OF INSTANCES> -k key-cernvm-<REGION> \
+      -s <SUBNET ID> --group <SECGROUP ID> -t <INSTANCE TYPE> -f <USER DATA FILE>  \
+      # optionally: --associate-public-ip-address true
+
+
+Enhanced Networking
+~~~~~~~~~~~~~~~~~~~
+
+CernVM contains the default Xen network driver, as well as the "Intel Virtual Function (VF)" adapter and the Amazon "Elastic Network Adapter (ENA)". With the ``--sriov simple`` parameter to the ``ec2-register`` command, the Intel VF adapter is automatically used if provided by the instance type. For ENA, the ``aws`` command line utility is required (e.g. ``sudo pip install aws`` in CernVM). Amazon `provides instructions <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/enhanced-networking-ena.html>`_ on how to enable the "enaSupport" attribute on an instance.
+
+Whether or not ENA / Intel VF drivers are used can be tested with ``ethtool -i eth0``. If it says "vif" for the driver, it's the standard Xen driver.
