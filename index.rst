@@ -24,6 +24,7 @@ Contents
    :maxdepth: 2
 
    cpt-releasenotes
+   cpt-howto
    cpt-launch
    cpt-context
    cpt-bootloader
