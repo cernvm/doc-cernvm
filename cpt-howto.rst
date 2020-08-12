@@ -3,6 +3,8 @@ How to run on...
 
 This section describes how to instantiate CernVM appliances on various local hypervisors and clouds.
 
+.. _sct_vbox:
+
 VirtualBox
 ----------
 
@@ -86,6 +88,9 @@ Shared Folders
   * Add the directories under "Shared Folders". Do *not* select the "Auto-mount" option. Inside the virtual machine, shared folders are automatically mounted under /mnt/shared.
 
     .. image:: _static/cvmvbox13.png
+
+
+.. _sct_kvm:
 
 KVM
 ---
@@ -215,6 +220,8 @@ Virtual machines can be listed, started, stopped, and removed with:
     Domain CernVM destroyed
 
 
+.. _sct_docker:
+
 CernVM as a Docker Container
 ----------------------------
 
@@ -301,6 +308,8 @@ Standard LHC cvmfs repositories are present by default, other repositories can b
 The corresponding public key needs to be stored in the container under /UCVM/keys first.
 
 
+.. _sct_openstack:
+
 OpenStack
 ---------
 
@@ -330,6 +339,8 @@ Manually Uploading Images (outside CERN)
 
 To be completed.
 
+
+.. _sct_ec2:
 
 Amazon EC2
 ----------
@@ -455,6 +466,8 @@ CernVM contains the default Xen network driver, as well as the "Intel Virtual Fu
 Whether or not ENA / Intel VF drivers are used can be tested with ``ethtool -i eth0``. If it says "vif" for the driver, it's the standard Xen driver.
 
 
+.. _sct_gce:
+
 Google Compute Engine
 ---------------------
 
@@ -488,6 +501,8 @@ The following steps upload the image and start an instance on GCE:
         gcloud compute instances create <INSTANCE NAME> \
           --image <IMAGE NAME> --metadata-from-file user-data=<FILE NAME>
 
+
+.. _sct_azure:
 
 Microsoft Azure
 ---------------
