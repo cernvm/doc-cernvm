@@ -179,3 +179,39 @@ Extra Contextualization
 -----------------------
 
 In addition to the normal user data, we have experimental support for "`extra user data <https://github.com/cernvm/cernvm-micro#extra-user-data>`_", which might be a last resort where the normal user data is occupied by the infrastructure. For instance, glideinWMS seems to exclusively specify user data, making it necessary to modify the image for additional contextualization. Extra user data are injected in the image under /cernvm/extra-user-data and they are internally appended to the normal user data. This does not yet work with cloud-init though; only with amiconfig and the µCernVM bootloader.
+
+
+Applying User Data
+------------------
+
+CernVM supports applying contextualization information at boot time using one of the following mechanisms:
+
+  * User-Data text snippet: almost all of the private or public cloud infrastructures provide a mechanism of passing arbitrary data to the instance at the creation time. A good example is `Amazon's Instance Metadata for EC2 <https://docs.amazonwebservices.com/AWSEC2/latest/UserGuide/AESDG-chapter-instancedata.html>`_.
+
+  * CD-ROM: the user data are stored to CD-ROM ISO images that are attached to the virtual machine.
+
+Both mechanisms eventually pass a string of ini-like data to the instance.
+
+
+Preparing a User-Data CD-ROM Image
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If it is not possible pass the user-data by the cloud infrastructure, you can use the mechanism of a contextualization CD-ROM image. This image must contain at least one file called ``context.sh`` and this file must have at least the following two lines:
+
+::
+
+    EC2_USER_DATA="<user-data>"
+    ONE_CONTEXT_PATH="/var/lib/amiconfig"
+
+Where ``<user-data>`` is the base64-encoded user data text snippet created as decribed earlier.
+
+To create the CD-ROM image (for example user-data.iso) you can then use the ``mkisofs`` utility:
+
+::
+
+    mkdir iso-tmp
+    echo 'EC2_USER_DATA=123abc...' >> iso-tmp/context.sh
+    echo 'ONE_CONTEXT_PATH="/var/lib/amiconfig"' >> iso-tmp/context.sh
+    mkisofs -o user-data.iso iso-tmp
+
+You must then mount this CD-ROM image to you virtual machine before you boot it. This is done differently on every hypervisor, so check your hypervisor configuration for more information.
