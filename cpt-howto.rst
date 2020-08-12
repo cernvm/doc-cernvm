@@ -453,3 +453,130 @@ Enhanced Networking
 CernVM contains the default Xen network driver, as well as the "Intel Virtual Function (VF)" adapter and the Amazon "Elastic Network Adapter (ENA)". With the ``--sriov simple`` parameter to the ``ec2-register`` command, the Intel VF adapter is automatically used if provided by the instance type. For ENA, the ``aws`` command line utility is required (e.g. ``sudo pip install aws`` in CernVM). Amazon `provides instructions <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/enhanced-networking-ena.html>`_ on how to enable the "enaSupport" attribute on an instance.
 
 Whether or not ENA / Intel VF drivers are used can be tested with ``ethtool -i eth0``. If it says "vif" for the driver, it's the standard Xen driver.
+
+
+Google Compute Engine
+---------------------
+
+The following steps upload the image and start an instance on GCE:
+
+  * Login to GCE and switch to a project with
+
+    ::
+
+        gcloud auth login
+        gcloud config set project <PROJECT NAME>
+
+  * If you haven't already done so, upload the GCE .tar.gz image to Google cloud storage with
+
+    ::
+
+        gsutil cp <GCE IMAGE> gs://<BUCKET>/<GCE IMAGE>
+        gcloud compute images create <IMAGE NAME> --source-uri gs:///<BUCKET>/<GCE IMAGE>
+
+  * If you haven't already done so, create an ssh key pair to login to the VMs in your project
+
+    ::
+
+        ssh-keygen -f <KEYPAIR>
+        gcloud compute project-info add-metadata --metadata "sshKeys=root:$(cat <KEYPAIR>.pub)"
+
+  * Start an instance with
+
+    ::
+
+        gcloud compute instances create <INSTANCE NAME> \
+          --image <IMAGE NAME> --metadata-from-file user-data=<FILE NAME>
+
+
+Microsoft Azure
+---------------
+
+You can use the ``azure`` utility in CernVM to upload images to the Azure cloud storage and to control virtual machines.
+
+Setting Azure Credentials
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to establish your account credentials, use
+
+::
+
+    azure account download
+    azure account import <CREDENTIALS FILE>
+
+and follow the instructions of the utility.
+
+
+Uploading the CernVM Image
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For Azure, get the CernVM image in VHD format from the download page. If you haven’t done before, create a *storage account* with
+
+::
+
+    azure storage account create <STORAGE ACCOUNT>
+
+Otherwise, set the storage account with
+
+::
+
+    azure storage account set <STORAGE ACCOUNT>
+
+Retrieve the storage *connection string* and set it in your environemnt. The ``<ACCOUNT KEY>`` refers to the last part of the connection string following ``AccountKey=``.
+
+::
+
+    azure storage account connectionstring show <STORAGE ACCOUNT>
+    export AZURE_STORAGE_CONNECTION_STRING="<CONNECTION STRING>"
+    export AZURE_STORAGE_ACCESS_KEY="<ACCESS KEY>"
+
+If you haven’t done so, create a *container* in your storage account with
+
+::
+
+    azure storage container create <CONTAINER>
+
+Upload and create the image (you can pick ``<IMAGE NAME>``) with
+
+::
+
+    azure vm disk upload <CERNVM IMAGE> \
+      https://<STORAGE ACCOUNT>.blob.core.windows.net/<CONTAINER>/<IMAGE NAME>.vhd \
+      $AZURE_STORAGE_ACCESS_KEY
+    azure vm image create --os linux --blob-url \
+      https://<STORAGE ACCOUNT>.blob.core.windows.net/<CONTAINER>/<IMAGE NAME>.vhd \
+      <IMAGE NAME>
+
+
+Creating Virtual Machines
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For Azure VMs, the ssh credentials are extraced from an X.509 certificate. In order to create valid ssh credentials, use
+
+::
+
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout <KEY NAME>.key -out <CERT NAME>.pem
+    chmod 600 <KEY NAME>.key
+
+You can also create credentials from an existing SSH key with
+
+::
+
+    openssl req -x509 -key ~/.ssh/id_rsa -nodes -days 365 -newkey rsa:2048 -out <CERT NAME>.pem
+
+These procedure is described in more detail in the `Azure Online Help <https://azure.microsoft.com/en-us/documentation/articles/virtual-machines-linux-use-ssh-key>`_.
+
+Virtual machine creation requires a user name and password, even if ssh credentials are provided. We recommend to use ``azure`` for ``<USER NAME>`` and a throw-away password, for instance ``"@Aa0$(cat /dev/urandom | tr -cd [:alnum:] | head -c24)"``. Create the virtual machine with
+
+::
+
+    azure vm create <INSTANCE NAME> <IMAGE NAME> --ssh --ssh-cert <CERT NAME>.pem \
+      --custom-data "./user-data" <USER NAME> <PASSWORD>
+
+For ssh login, you can retrieve the public IP address of the image with
+
+::
+
+    azure vm show <INSTANCE NAME>
+
+For help on creating the user-data file, see our :ref:`contextualization page <sct_context>`.
