@@ -27,7 +27,6 @@ Contents
    cpt-howto
    cpt-launch
    cpt-context
-   cpt-bootloader
    cpt-signatures
 
 
