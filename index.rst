@@ -27,6 +27,7 @@ Contents
    cpt-launch
    cpt-context
    cpt-bootloader
+   cpt-signatures
 
 
 Contact and Authors
