@@ -3,7 +3,7 @@
 CernVM Launch
 =============
 
-**Note**: CernVM Launch does currently not work with VirtualBox 6.1. We are working on a fix. Please use VirtualBox 6.0 for the time being.
+**Note**: CernVM Launch does currently not work with VirtualBox 6.1 on Windows. We are working on a fix. Please use VirtualBox 6.0 for the time being.
 
 The ``cernvm-launch`` utility is a single binary for `Windows <https://ecsft.cern.ch/dist/cernvm/launch/bin/Win/cernvm-launch.exe>`_, `Linux <https://ecsft.cern.ch/dist/cernvm/launch/bin/Linux/cernvm-launch>`_, and `Mac <https://ecsft.cern.ch/dist/cernvm/launch/bin/Mac/cernvm-launch>`_ that creates, lists, and destroys (interactive) CernVMs on `VirtualBox <https://www.virtualbox.org/>`_. It works similar to the vagrant and docker command line utilities. It is meant to be used for interactive (graphical) CernVM instances on a local workstation or laptop.
 
