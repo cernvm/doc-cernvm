@@ -3,6 +3,14 @@
 Release Notes
 =============
 
+CernVM 4.5 [20.01.2021]
+-----------------------
+
+CernVM 4.5 is a minor update to CernVM 4. It upgrades the base system to EL 7.9.
+
+In order to upgrade, run ``sudo cernvm-update -a`` followed by a reboot.
+
+
 CernVM 4.4 [17.06.2020]
 -----------------------
 
