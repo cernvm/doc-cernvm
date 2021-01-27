@@ -3,10 +3,11 @@
 Release Notes
 =============
 
-CernVM 4.5 [20.01.2021]
+CernVM 4.5 [27.01.2021]
 -----------------------
 
 CernVM 4.5 is a minor update to CernVM 4. It upgrades the base system to EL 7.9.
+It also changes the ssh daemon default config in order to allow for public key authenticated login to the VM.
 
 In order to upgrade, run ``sudo cernvm-update -a`` followed by a reboot.
 
