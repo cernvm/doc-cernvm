@@ -88,7 +88,7 @@ The ``cernvm-launch`` executable includes an embedded help page:
 	           -v, --version		Print version.
 	           -h, --help		Print this help message.
  
-The most important argument when creating the virtual machine is the ``USER_DATA_FILE`` which defines the machine contextualization, i.e. all the major settings, including the repositories to be mounted, the users, the services to be started and the flavour of the machine. A useful collection of ``contexts`` used in quite different situations is publicly available on `_GitHub <https://github.com/cernvm/public-contexts>`_.
+The most important argument when creating the virtual machine is the ``USER_DATA_FILE`` which defines the machine contextualization, i.e. all the major settings, including the repositories to be mounted, the users, the services to be started and the flavour of the machine. A useful collection of ``contexts`` used in quite different situations is publicly available on `GitHub <https://github.com/cernvm/public-contexts>`_.
 
 Example
 ~~~~~~~
