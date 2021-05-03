@@ -62,3 +62,113 @@ From there, copy the binary in a directory, which is a default path for executab
     copy cernvm-launch.exe C:\Windows
 
 You can see your path directories with ``echo %PATH%``.
+
+Usage
+-----
+
+The cernvm-launch executable includes an embedded help page:
+
+::
+    $ cernvm-launch -h
+    Usage: cernvm-launch OPTION
+    OPTIONS:
+	           create [--no-start] [--name MACHINE_NAME] [--cpus NUM] [--memory NUM_MB] [--disk NUM_MB]
+	                  [--iso PATH] [--sharedFolder PATH] [USER_DATA_FILE] [CONFIGURATION_FILE]
+		                  Create a machine with default or specified user data.
+	           destroy [--force] MACHINE_NAME	Destroy an existing machine.
+	           import [--no-start] [--name MACHINE_NAME] [--memory NUM_MB] [--disk NUM_MB]
+	                  [--cpus NUM] [--sharedFolder PATH] OVA_IMAGE_FILE [CONFIGURATION_FILE]
+		                  Create a new machine from an OVA image.
+	           list [--running] [MACHINE_NAME]	List all existing machines or a detailed info about one.
+	           pause MACHINE_NAME	Pause a running machine.
+	           ssh [user@]MACHINE_NAME	SSH into an existing machine.
+	           start MACHINE_NAME	Start an existing machine.
+	           stop MACHINE_NAME	Stop a running machine.
+	           -v, --version		Print version.
+	           -h, --help		Print this help message.
+ 
+The most important argument when creating the virtual machine is the ``USER_DATA_FILE`` which defines the machine contextualization, i.e. all the major settings, including the repositories to be mounted, the users, the services to be started and the flavour of the machine. A useful collection to ``context`` used in quite different situations is publicly available on `GitHub <https://github.com/cernvm/public-contexts>`.
+
+Example
+~~~~~~~
+
+The following creates a CMS VM to be used for 2011 open data: 
+
+::
+
+    $ cernvm-launch create --name cms-test --cpus 2 --memory 4096 --disk 20000 cms-opendata-2011.context
+    Using user data file: cms-opendata-2011.context
+    Parameters used for the machine creation:
+	   name: cms-test
+	   cpus: 2
+	   memory: 4096
+	   disk: 20000
+	   cernvmVersion: 2021.05-1
+	   sharedFolder: /Users/ganis
+
+The machine features 2 cores, 4 GB RAM and 20 GB hard drive. The local ``HOME`` folder is shared ``R/W`` and
+available as a mount point under ``/mnt`` .
+
+At any moment the existing VMs can be checked with the ``list`` sub-command:
+
+::
+
+    $ cernvm-launch list
+    cms-test:	CVM: 2021.05-1	port: 8247
+
+which also shows the internal port associsated with the VM . The ``ssh`` sub-command allows to sonnect to the machine:
+
+::
+
+    $ cernvm-launch ssh cms-test
+    Username: cms-opendata
+    The authenticity of host '[127.0.0.1]:8247 ([127.0.0.1]:8247)' can't be established.
+    ECDSA key fingerprint is SHA256:AV6DFteBe7EcDCijcsdFcU6K9f5FjKKtoEWFZEhdvCA.
+    Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+    Warning: Permanently added '[127.0.0.1]:8247' (ECDSA) to the list of known hosts.
+    cms-opendata@127.0.0.1's password:
+    [Outer Shell ~]
+
+Passless ssh login can be setup as usual by creating an ``.ssh`` directory and copying in the host public key.
+The username can be specified on the command line:
+
+::
+
+    $ cernvm-launch ssh cms-opendata@cms-test
+    Last login: Mon May  3 15:20:37 2021 from gateway
+
+Display settings should be automaticaly transferred (as a simple test, running ``xterm`` should open a terminal into
+an X window in the host screen).
+
+The shared folder is available under ``/mnt/shared/cms-test_sf``:
+
+::
+
+    [Outer Shell ~] df -h
+    Filesystem                Size  Used Avail Use% Mounted on
+    /dev/disk/by-label/UROOT   20G  532M   18G   3% /mnt/.rw
+    /dev/fuse                 2.0G  352M  1.7G  18% /mnt/.ro
+    root                       20G  532M   18G   3% /
+    tmpfs                     2.0G  9.6M  2.0G   1% /run
+    devtmpfs                  2.0G     0  2.0G   0% /dev
+    tmpfs                     2.0G     0  2.0G   0% /dev/shm
+    tmpfs                     2.0G     0  2.0G   0% /sys/fs/cgroup
+    cms-test_sf               932G  605G  328G  65% /media/sf_cms-test_sf
+    cvmfs2                     20G   46M   20G   1% /cvmfs/cvmfs-config.cern.ch
+    cvmfs2                     20G   46M   20G   1% /cvmfs/cms.cern.ch
+    cms-test_sf               932G  605G  328G  65% /mnt/shared/cms-test_sf
+    tmpfs                     394M  4.0K  394M   1% /run/user/1000
+    
+Files can also be copied to the VM using ``scp`` and the connection port:
+
+::
+
+    $ scp -P 8247 sample.txt cms-opendata@localhost:~/
+    sample.txt                                                             100%    7     4.6KB/s   00:00
+
+Th VM is destroyed by the ``destroy`` sub-command:
+
+::
+
+    $ cernvm-launch destroy cms-test
+    The machine 'cms-test' is running, do you want do destroy it? [y/N]: y
