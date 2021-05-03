@@ -69,6 +69,7 @@ Usage
 The cernvm-launch executable includes an embedded help page:
 
 ::
+
     $ cernvm-launch -h
     Usage: cernvm-launch OPTION
     OPTIONS:
@@ -172,3 +173,5 @@ Th VM is destroyed by the ``destroy`` sub-command:
 
     $ cernvm-launch destroy cms-test
     The machine 'cms-test' is running, do you want do destroy it? [y/N]: y
+    $ cernvm-launch list
+
