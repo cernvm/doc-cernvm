@@ -117,7 +117,7 @@ At any moment the existing VMs can be checked with the ``list`` sub-command:
     $ cernvm-launch list
     cms-test:	CVM: 2021.05-1	port: 8247
 
-which also shows the internal port associsated with the VM . The ``ssh`` sub-command allows to sonnect to the machine:
+which also shows the internal port associated with the VM. The ``ssh`` sub-command allows to connect to the machine:
 
 ::
 
