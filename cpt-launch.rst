@@ -138,7 +138,7 @@ The username can be specified on the command line:
     $ cernvm-launch ssh cms-opendata@cms-test
     Last login: Mon May  3 15:20:37 2021 from gateway
 
-Display settings should be automaticaly transferred (as a simple test, running ``xterm`` should open a terminal into
+Display settings should be automatically transferred (as a simple test, running ``xterm`` should open a terminal into
 an X window in the host screen).
 
 The shared folder is available under ``/mnt/shared/cms-test_sf``:
